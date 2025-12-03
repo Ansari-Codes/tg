@@ -1,7 +1,8 @@
 # ui file (snippet)
-from UI import Card, Center, Input, SoftBtn, Label, Row, Col, RawCol, RawRow, AddSpace, CheckBox, Notify, Button
+from UI import Card, Center, Input, SoftBtn, Label, Row, Col, RawCol, RawRow, AddSpace, CheckBox, Notify, Button, navigate
 from models import Variable
 from database.auth import signup
+from storage import getUserStorage, updateUserStorage
 
 def validate(nv, mv, pv, cv, ne, me, pe):
     """
@@ -70,6 +71,10 @@ async def sup(nv, mv, pv, cv, ne, me, pe):
 
     # success UI feedback (you can customize)
     Notify("Account created!")
+    print(res.data)
+    res.data['auth'] = True
+    updateUserStorage(res.data)
+    navigate("/dashboard")
 
 async def render():
     nv = Variable("")   # display name
@@ -79,14 +84,14 @@ async def render():
     ne = Variable("")   # name error
     me = Variable("")   # mail error
     pe = Variable("")   # password error
-
+    widgets = []
     async def sp():
-        btn.set_enabled(False)
-        try:
-            await sup(nv, mv, pv, cv, ne, me, pe)
+        for i in widgets:
+            i.set_enabled(False)
+        try: await sup(nv, mv, pv, cv, ne, me, pe)
         finally:
-            btn.set_enabled(True)
-
+            for i in widgets:
+                i.set_enabled(True)
     with Col().classes("w-full h-full justify-center items-center"):
         with Card().classes("w-full sm:w-[90vw] md:w-[50vw] lg:w-[30vw] h-fit"):
             Label("SignUp").classes("text-lg border-b-2 w-full font-bold text-center")
@@ -94,26 +99,27 @@ async def render():
                 with RawRow().classes("w-full justify-center text-sm"):
                     Label("Display Name *").classes("w-fit")
                     AddSpace()
-                    # allow missing attribute initially
                     Label(model=ne, model_configs=dict(strict=False)).classes("w-fit")\
                         .bind_visibility_from(ne, "value")
-                Input(nv).classes("w-full")
+                widgets.append(Input(nv).classes("w-full"))
 
                 with RawRow().classes("w-full justify-center text-sm"):
                     Label("Email *").classes("w-fit")
                     AddSpace()
                     Label(model=me, model_configs=dict(strict=False)).classes("w-fit")\
                         .bind_visibility_from(me, "value")
-                Input(mv).classes("w-full")
+                widgets.append(Input(mv).classes("w-full"))
 
                 with RawRow().classes("w-full justify-center text-sm"):
                     Label("Password *").classes("w-fit")
                     AddSpace()
                     Label(model=pe, model_configs=dict(strict=False)).classes("w-fit")\
                         .bind_visibility_from(pe, "value")
-                Input(pv).classes("w-full")
-                Input(cv).classes("w-full")
+                widgets.append(Input(pv).classes("w-full"))
+                widgets.append(Input(cv).classes("w-full"))
 
                 checkbox = CheckBox("I accept agreements!").classes("w-full")
+                widgets.append(checkbox)
                 btn = Button("Create Account", on_click=sp)
                 btn.bind_enabled_from(checkbox, "value").classes("w-full")
+                widgets.append(btn)

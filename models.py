@@ -2,9 +2,12 @@ from typing import Dict, Any, Literal
 from storage import getUserStorage, getThemeStorage
 
 class Response:
-    data: Dict[Any, Any] = {}
-    errors: Dict[str, str] = {}
-    success: bool = not errors
+    def __init__(self):
+        self.data = {}
+        self.errors = {}
+    @property
+    def success(self):
+        return not self.errors
 
 class Variable:
     def __init__(self, value="") -> None:

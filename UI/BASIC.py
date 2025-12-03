@@ -1,11 +1,13 @@
 from ENV import ui, THEME
 from typing import Callable, Literal
 
+def navigate(link:str,new_tab:bool=False):ui.navigate.to(link,new_tab)
+
 def Label(text="", model=None, model_configs=None):
     lbl = ui.label(text)
     if model:
         model_configs = model_configs or {}
-        lbl.bind_text(lbl, target_name='value', **model_configs)
+        lbl.bind_text(model, target_name='value', **model_configs)
     return lbl
 
 def Header(): return ui.header(fixed=True, elevated=False)
@@ -34,6 +36,7 @@ def SoftBtn(
         new_tab: bool = False,
         icon: str = "",
         icon_config: dict|None = None,
+        icon_side: Literal['r', 'l'] = 'l',
         px: int = 4,
         py: int = 2,
         clr: str = "btn",
@@ -60,10 +63,12 @@ def SoftBtn(
     )
     classes = f"{base_classes}".strip()
     with (ui.link("", link, new_tab) if link else Row()).classes(classes) as btn:
-        if icon:
+        if icon and icon_side == 'l':
             ui.icon(icon, **icon_config).classes(f"text-[18px]")
         if text:
             ui.label(text)
+        if icon and icon_side == 'r':
+            ui.icon(icon, **icon_config).classes(f"text-[18px]")
     btn = btn.on('click', on_click)
     return btn
 
@@ -106,7 +111,7 @@ def Button(
         config: dict|None = None
     ):
     if not config: config = {}
-    return ui.button(text=text, on_click=on_click, **config)
+    return ui.button(text=text, on_click=on_click, **config).props("unelevated push")
 
 def TextArea(
         content: str = "",
@@ -174,7 +179,7 @@ def DialogHeader(
     else:
         icon_to_show = "close" * close_icon
     with Row().classes("w-full bg-secondary dark:bg-primary justify-between p-2 items-center justify-between gap-2") as header_:
-        title_ = Label(title, "text-2xl font-medium text-white")
+        title_ = Label(title).classes("text-2xl font-medium text-white")
         close_btn_ = None
         if (close_icon or close_text):
             close_btn_ = SoftBtn(

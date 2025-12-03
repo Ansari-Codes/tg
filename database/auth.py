@@ -70,9 +70,13 @@ async def signup(
     """
 
     # RUN_SQL takes a single SQL string in your setup
-    inserted = await RUN_SQL(query)
+    # TODO: In production: uncomment
+    # inserted = await RUN_SQL(query)
 
     # If DB doesn't support RETURNING, (inserted may be None).
     # You can handle that inside RUN_SQL or here by selecting last row.
-    res.data = inserted
+    res.data = {
+        "name": name,
+        "mail": mail,
+    }
     return res

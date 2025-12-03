@@ -11,4 +11,8 @@ SECRET = str(uuid.uuid4().hex)
 NAME = "TurtleGraphics"
 ICON = "🐢"
 
-THEME = {}
+THEME = {
+    "primary": "",
+    "secondary": "",
+    "accent": "",
+}
