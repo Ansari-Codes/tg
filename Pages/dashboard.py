@@ -1,6 +1,7 @@
 from UI import Label, Input, Button, Icon, RawCol, RawRow, Card, SoftBtn, AddSpace, Header, Dialog, DialogHeader, navigate, ui
 from ENV import NAME, ICON
 from models import Variable
+from database.project import createProject
 
 def dashboard():
     pass
@@ -9,10 +10,15 @@ def _ask_new_project(d):
     d.clear()
     v = Variable()
     DialogHeader("New Project Title", dialog=d)
+    async def _c():
+        p = await createProject(str(t.value))
+        pid = p.data.get("slug")
+        d.close()
+        navigate(f"/create/{pid}",True)
     with d.classes("flex flex-col min-w-[300px] min-h-[5vh]"):
         with Card():
-            Input(v, bindings={"strict":False}).classes("w-full")
-            Button("Create",lambda:[d.close(),navigate(f"/create/{v.value}",True)])
+            t = Input(v, bindings={"strict":False}).classes("w-full")
+            Button("Create",on_click=_c)
     d.open()
 
 def projects():
