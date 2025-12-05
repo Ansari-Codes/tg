@@ -10,7 +10,7 @@ async def RUN_SQL(query: str, to_fetch: bool = False):
         async with httpx.AsyncClient(timeout=10) as client:
             response = await client.post(API_URL, json=payload)
             response.raise_for_status()
-            return response.json().get("data", [])
+            return response.json().get("data", [{}])
     except httpx.HTTPStatusError as e: raise
     except httpx.RequestError as e: raise
     except Exception as e: raise

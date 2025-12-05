@@ -26,6 +26,11 @@ def verifyPswd(password: str) -> bool:
     strength += (len(password) >= 8)
     return strength == 4
 
+async def isUnique(item, col):
+    query = f"SELECT COUNT(*) FROM users WHERE {col} = '{item}';"
+    selected = await RUN_SQL(query,True)
+    return not bool(selected[0] if selected else 0)
+
 def _escape_sql(s: str) -> str:
     """Simple quote-escape for embedding into SQL strings (for RUN_SQL)."""
     return s.replace("'", "''")
@@ -47,15 +52,14 @@ async def signup(
     res = Response()
 
     # --- validations (FIXED: pass correct variables) ---
-    if not verifyUsername(name):
-        res.errors['name'] = "Username can only contain letters and numbers."
-    if not verifyMail(mail):
-        res.errors['mail'] = "Invalid mail."
-    if not verifyPswd(pswd):
-        res.errors['pswd'] = "Password is not strong."
-
-    if not res.success:
-        return res
+    if not verifyUsername(name): res.errors['name'] = "Username can only contain letters and numbers."
+    if not verifyMail(mail): res.errors['mail'] = "Invalid mail."
+    if not verifyPswd(pswd): res.errors['pswd'] = "Password is not strong."
+    if not await isUnique(name, 'name'):
+        res.errors['name'] = "Username already taken!"
+    if not await isUnique(mail, 'email'):
+        res.errors['mail'] = "Email already taken!"
+    if not res.success: return res
 
     # --- escape values for safe embedding into SQL string ---
     name_esc = _escape_sql(name)
@@ -68,15 +72,8 @@ async def signup(
     VALUES ('{name_esc}', '{mail_esc}', '{pswd_esc}', '{avatar_esc}')
     RETURNING *;
     """
-
-    # RUN_SQL takes a single SQL string in your setup
-    # TODO: In production: uncomment
-    # inserted = await RUN_SQL(query)
-
-    # If DB doesn't support RETURNING, (inserted may be None).
-    # You can handle that inside RUN_SQL or here by selecting last row.
-    res.data = {
-        "name": name,
-        "mail": mail,
-    }
+    inserted = await RUN_SQL(query, to_fetch=True)
+    res.data = inserted[0]
     return res
+
+

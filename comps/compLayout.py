@@ -1,5 +1,5 @@
-from UI import Header, Label, Html, SoftBtn, AddSpace, Footer, Link
-from storage import getUserStorage
+from UI import Header, Label, Html, SoftBtn, AddSpace, Footer, Link, navigate
+from storage import getUserStorage, updateUserStorage
 from ENV import NAME, ICON
 
 def CompHeader():
@@ -8,7 +8,12 @@ def CompHeader():
         Html(ICON).classes("text-2xl h-full")
         Label(NAME).classes("font-bold text-2xl h-full")
         AddSpace()
-        if auth: SoftBtn("Dashboard", link='/dashboard')
+        if auth: 
+            SoftBtn("Dashboard", link='/dashboard')
+            SoftBtn("LogOut", clr='red', on_click=lambda:[
+                updateUserStorage({}, clear=True),
+                navigate('/')
+            ])
         else:
             SoftBtn("SignUp", link="/signup")
             SoftBtn("LogIn", link='/login')
@@ -17,7 +22,8 @@ def CompHeader():
 def CompFooter():
     auth = getUserStorage().get("auth", False)
     with Footer() as f:
-        if auth: Link("Dashboard", link='/dashboard')
+        if auth: 
+            Link("Dashboard", link='/dashboard')
         else:
             Link("SignUp", link="/signup").classes("text-white hover:text-black")
             Link("LogIn", link='/login').classes("text-white hover:text-black")

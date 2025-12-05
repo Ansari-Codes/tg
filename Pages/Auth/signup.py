@@ -70,10 +70,10 @@ async def sup(nv, mv, pv, cv, ne, me, pe):
         return
 
     # success UI feedback (you can customize)
-    Notify("Account created!")
     print(res.data)
     res.data['auth'] = True
     updateUserStorage(res.data)
+    Notify("Account created!")
     navigate("/dashboard")
 
 async def render():

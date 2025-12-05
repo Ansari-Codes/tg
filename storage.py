@@ -11,6 +11,7 @@ def updateUserStorage(data: dict, clear=False)->dict:
     if clear:user.clear()
     user.update(data)
     return user
+def clearUserStorage():updateUserStorage({},True)
 
 def getThemeStorage()->dict:return _ensure("theme")
 def updateThemeStorage(data: dict, clear=False)->dict:
