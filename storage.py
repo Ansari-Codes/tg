@@ -19,3 +19,12 @@ def updateThemeStorage(data: dict, clear=False)->dict:
     if clear:theme.clear()
     theme.update(data)
     return theme
+def clearThemeStorage():updateThemeStorage({},True)
+
+def getTabStorage()->dict:return app.storage.tab
+def updateTabStorage(data: dict, clear=False)->dict:
+    tab = getTabStorage()
+    if clear:tab.clear()
+    tab.update(data)
+    return tab
+def clearTabStorage():updateTabStorage({},True)

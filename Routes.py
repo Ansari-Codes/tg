@@ -16,6 +16,6 @@ async def csp():
 async def cd():
     await rd()
 
-@ui.page("/create/{name}")
-async def cc(name: str):
-    await rc()
+@ui.page("/create/{s}")
+async def cc(s: str):
+    await rc(s)

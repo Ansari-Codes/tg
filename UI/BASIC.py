@@ -164,36 +164,5 @@ def Notify(
         **kwargs
     ): ui.notify(message, position=position, close_button=close_button, **kwargs)
 
-def DialogHeader(
-        title: str = "",
-        close_icon: str|bool = True,
-        close_text: str = "",
-        on_close: Callable|None = None,
-        close_config: dict|None = None,
-        dialog: ui.dialog|None = None,
-    ):
-    close_config = close_config or {}
-    icon_to_show = None
-    if isinstance(close_icon, str):
-        icon_to_show = close_icon.strip() if close_icon.strip() else ""
-    else:
-        icon_to_show = "close" * close_icon
-    with Row().classes("w-full bg-secondary dark:bg-primary justify-between p-2 items-center justify-between gap-2") as header_:
-        title_ = Label(title).classes("text-2xl font-medium text-white")
-        close_btn_ = None
-        if (close_icon or close_text):
-            close_btn_ = SoftBtn(
-                close_text,
-                on_click=on_close or (lambda:()),
-                icon=icon_to_show,
-                rounded='sm' if (not icon_to_show) and (close_text) else "full",
-                clr='error',
-                px=1,
-                py=1,
-                **close_config
-            ).classes(f"border-2 border-red-300 shadow-none")
-    if dialog: header_.move(dialog, 0)
-    return header_
-
 def Dialog():
     return ui.dialog().props('backdrop-filter="hue-rotate(10deg)"')

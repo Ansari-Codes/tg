@@ -20,7 +20,7 @@ async def insertProject(title: str):
     description = ""
     query = f"""
     INSERT INTO {PROJECTS} (title, owner, slug, pycode, jscode, likes, description)
-    VALUES ('{escapeSQL(title)}', '{escapeSQL(owner)}', '{escapeSQL(slug)}', 
+    VALUES ('{escapeSQL(title)}', '{escapeSQL(str(owner))}', '{escapeSQL(slug)}', 
             '{escapeSQL(pycode)}', '{escapeSQL(jscode)}', '{escapeSQL(likes)}', '{escapeSQL(description)}');
     """
     await RUN_SQL(query)
@@ -31,10 +31,57 @@ async def insertProject(title: str):
     return row[0] if row else {}
 
 async def createProject(title: str):
-    title = escapeSQL(title.lower())
+    title = escapeSQL(title.strip().lower()) if title.strip() else randomstr()
     res = Response()
     if not await unique(title, 'title'):
         res.errors['title']="Title already exists"
     if not res.success:return res
     res.data = await insertProject(title)
+    return res
+
+async def loadProject(item, by="slug"):
+    query = f"""
+    SELECT * FROM {PROJECTS} WHERE {by} = '{escapeSQL(str(item))}'
+    """
+    res = Response()
+    res.data = ((await RUN_SQL(query, True)) or [{}])[0]
+    return res
+
+async def updateProject(item, by="slug", **updates):
+    res = Response()
+    if not updates:
+        res.errors['updates'] = "No updates provided"
+        return res
+    allowed_cols = {"title", "description", "pycode", "jscode", "likes", "status", "updated_at"}
+    set_clauses = []
+    for col, val in updates.items():
+        if col not in allowed_cols:
+            continue
+        set_clauses.append(f"{col} = '{escapeSQL(str(val))}'")
+    if not set_clauses:
+        res.errors['updates'] = "No valid columns to update"
+        return res
+    set_clauses.append("updated_at = CURRENT_TIMESTAMP")
+    set_clause = ", ".join(set_clauses)
+    query = f"""
+    UPDATE {PROJECTS}
+    SET {set_clause}
+    WHERE {by} = '{escapeSQL(str(item))}';
+    """
+    await RUN_SQL(query)
+    fetch_query = f"""
+    SELECT * FROM {PROJECTS} WHERE {by} = '{escapeSQL(str(item))}';
+    """
+    row = await RUN_SQL(fetch_query, True)
+    res.data = row[0] if row else {}
+    return res
+
+async def getProjects(owner):
+    res = Response()
+    fetch_query = f"""
+    SELECT * FROM {PROJECTS} WHERE owner = '{escapeSQL(str(owner))}';
+    """
+    row = await RUN_SQL(fetch_query, True)
+    print(row)
+    res.data = row[0] if row else {}
     return res
