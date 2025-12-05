@@ -57,8 +57,6 @@ async def sup(nv, mv, pv, cv, ne, me, pe):
     pswd = pv.value.strip()
 
     res = await signup(name, mail, pswd)
-    print(res.data)
-    # show errors returned from server-side validators (if any)
     if not res.success:
         # map server-side errors to error Variables so UI shows them
         if 'name' in res.errors:
@@ -70,7 +68,6 @@ async def sup(nv, mv, pv, cv, ne, me, pe):
         return
 
     # success UI feedback (you can customize)
-    print(res.data)
     res.data['auth'] = True
     updateUserStorage(res.data)
     Notify("Account created!")

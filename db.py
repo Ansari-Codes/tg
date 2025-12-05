@@ -1,6 +1,11 @@
 import httpx
 API_URL = "http://worldofansari.com/dbapi"
 q = 0
+
+USERS = "users"
+PROJECTS = "projects"
+COMMENTS = "comments"
+
 async def RUN_SQL(query: str, to_fetch: bool = False):
     global q
     payload = {"query": query, "to_fetch": to_fetch, "name": "turtlegraphics"}
