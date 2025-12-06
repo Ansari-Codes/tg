@@ -31,10 +31,37 @@ async def insertProject(title: str):
     return row[0] if row else {}
 
 async def createProject(title: str):
-    title = escapeSQL(title.lower())
+    title = escapeSQL(title.strip().lower()) if title.strip() else randomstr()
     res = Response()
     if not await unique(title, 'title'):
         res.errors['title']="Title already exists"
     if not res.success:return res
     res.data = await insertProject(title)
+    return res
+
+async def getAllProjects(item: int|str, by="owner"):
+    res = Response()
+    projects = await RUN_SQL(f"""
+    SELECT * FROM {PROJECTS} WHERE {by} = {escapeSQL(item)};
+    """, True)
+    res.data = projects
+    return res
+
+async def loadProject(item, by="slug"):
+    res = Response()
+    value = escapeSQL(str(item))
+    value = f"'{value}'"
+    query = f"""
+    SELECT *
+    FROM {PROJECTS}
+    WHERE {by} = {value}
+    ORDER BY id DESC
+    LIMIT 1;
+    """
+    project = await RUN_SQL(query, True)
+    if project and project[0]:
+        res.data = project[0]
+    else:
+        res.data = {}
+        res.errors["project"] = "Project not found"
     return res

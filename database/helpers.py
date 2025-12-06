@@ -33,6 +33,6 @@ async def isUnique(item, col, table):
     selected = await RUN_SQL(query,True)
     return not bool(selected[0].get("COUNT(*)") if selected else 0)
 
-def escapeSQL(s: str) -> str:
-    return s.replace("'", "''")
+def escapeSQL(s) -> str:
+    return str(s).replace("'", "''")
 

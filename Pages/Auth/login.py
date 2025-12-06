@@ -13,7 +13,7 @@ def validate(iv, ie, pv, pe):
         return False
     return True
 
-async def lgn(iv, pv, ie, pe):
+async def lgn(iv, pv, ie, pe, l):
     if not validate(iv, ie, pv, pe):return
     iden = iv.value.strip().lower()
     pswd = pv.value.strip()
@@ -24,9 +24,9 @@ async def lgn(iv, pv, ie, pe):
     res.data['auth'] = True
     updateUserStorage(res.data)
     Notify("Access grandted!")
-    navigate("/dashboard")
+    navigate(l)
 
-async def render():
+async def render(l='/dashboard'):
     iv = Variable("")   # display name
     pv = Variable("")   # password
     ie = Variable("")
@@ -35,7 +35,7 @@ async def render():
     async def sp():
         for i in widgets:
             i.set_enabled(False)
-        try: await lgn(iv, pv, ie, pe)
+        try: await lgn(iv, pv, ie, pe, l)
         finally:
             for i in widgets:
                 i.set_enabled(True)

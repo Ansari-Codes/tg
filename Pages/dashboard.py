@@ -17,10 +17,12 @@ def _ask_new_project(d):
     with d.classes("flex flex-col min-w-[300px] min-h-[5vh]"):
         with Card():
             t = Input(v, bindings={"strict":False}).classes("w-full")
-            Button("Create",on_click=_c)
+            with RawRow():
+                Button("Create",on_click=_c)
+                Button("Cancel",on_click=d.close).props("color=red")
     d.open()
 
-def projects():
+async def projects():
     dialog = Dialog()
     Button("New", lambda d=dialog:_ask_new_project(d), {"icon":"plus"})
 
@@ -30,13 +32,13 @@ def analytics():
 def settings():
     pass
 
-def changePage(area:ui.element, var:Variable, name:str):
+async def changePage(area:ui.element, var:Variable, name:str):
     area.clear()
     name = name.lower()
     with area:
         var.value = name.title()
         if name == 'dashboard': dashboard()
-        elif name == 'projects': projects()
+        elif name == 'projects': await projects()
         elif name == 'analytics': analytics()
         elif name == 'settings': settings()
 
@@ -76,6 +78,6 @@ async def render():
         Label("")
     area = ui.element()
     d.append(createDrawer(area, var))
-    changePage(area, var, "dashboard")
+    await changePage(area, var, "dashboard")
     page_layout = context.client.layout
     page_layout.props(remove='view', add='view="lHh lpR lFf"')

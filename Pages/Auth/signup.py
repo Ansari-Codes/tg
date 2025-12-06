@@ -48,7 +48,7 @@ def validate(nv, mv, pv, cv, ne, me, pe):
     # all checks passed
     return True
 
-async def sup(nv, mv, pv, cv, ne, me, pe):
+async def sup(nv, mv, pv, cv, ne, me, pe, l):
     if not validate(nv, mv, pv, cv, ne, me, pe):
         return
 
@@ -71,9 +71,9 @@ async def sup(nv, mv, pv, cv, ne, me, pe):
     res.data['auth'] = True
     updateUserStorage(res.data)
     Notify("Account created!")
-    navigate("/dashboard")
+    navigate(l)
 
-async def render():
+async def render(l='/dashboard'):
     nv = Variable("")   # display name
     mv = Variable("")   # email
     pv = Variable("")   # password
@@ -85,7 +85,7 @@ async def render():
     async def sp():
         for i in widgets:
             i.set_enabled(False)
-        try: await sup(nv, mv, pv, cv, ne, me, pe)
+        try: await sup(nv, mv, pv, cv, ne, me, pe, l)
         finally:
             for i in widgets:
                 i.set_enabled(True)

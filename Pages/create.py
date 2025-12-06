@@ -1,6 +1,9 @@
 from UI import Label, Header, Input, Button, TextArea, SoftBtn, Col, Row, AddSpace, Html, ui
-
-async def render(name):
+from database.project import loadProject
+from storage import updateTabStorage
+async def render(slug):
+    project = await loadProject(slug)
+    context = ui.context.client
     with Header():
         Label("Create").classes("text-lg font-bold")
         AddSpace()
