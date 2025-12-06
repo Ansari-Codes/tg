@@ -1,4 +1,4 @@
-from UI import Label, Input, Button, Icon, RawCol, RawRow, Card, SoftBtn, AddSpace, Header, Dialog, DialogHeader, navigate, ui
+from UI import Label, Input, Button, Icon, RawCol, RawRow, Card, SoftBtn, AddSpace, Header, Dialog, navigate, ui
 from ENV import NAME, ICON
 from models import Variable
 from database.project import createProject
@@ -9,7 +9,6 @@ def dashboard():
 def _ask_new_project(d):
     d.clear()
     v = Variable()
-    DialogHeader("New Project Title", dialog=d)
     async def _c():
         p = await createProject(str(t.value))
         pid = p.data.get("slug")
