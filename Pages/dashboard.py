@@ -1,53 +1,19 @@
-from UI import Label, Input, Button, Icon, RawCol, RawRow, Card, Notify, SoftBtn, AddSpace, Header, Dialog, navigate, ui
+from UI import Label, Input, Button, Icon, RawCol, RawRow, Card, SoftBtn, AddSpace, Header, Dialog, navigate, ui
 from ENV import NAME, ICON
 from models import Variable
-from database.project import createProject, getProjects
-from storage import getUserStorage
-
-def dashboard():
-    pass
-
-def _ask_new_project(d):
-    d.clear()
-    v = Variable()
-    async def _c():
-        p = await createProject(str(t.value))
-        if p.success:
-            s = p.data.get("slug")
-            d.close()
-            navigate(f"/create/{s}",True)
-        else:
-            for i in p.errors.items():
-                Notify(i[-1], color="error")
-    with d.classes("flex flex-col min-w-[300px] min-h-[5vh]"):
-        with Card():
-            t = Input(v, bindings={"strict":False}).classes("w-full")
-            with RawRow().classes("gap-2"):
-                Button("Create",on_click=_c)
-                Button("Cancel",on_click=d.close,config=dict(color="red"))
-    d.open()
-
-async def projects():
-    dialog = Dialog()
-    Button("New", lambda d=dialog:_ask_new_project(d), {"icon":"plus"})
-    for i in (await getProjects(getUserStorage().get("id"))).data:
-        with Card(): Label(str(i))
-
-def analytics():
-    pass
-
-def settings():
-    pass
+from database.project import createEmtpyProject, getAllProjects
+from storage import getUserStorage, userID
+from .Dashboard import *
 
 async def changePage(area:ui.element, var:Variable, name:str):
     area.clear()
     name = name.lower()
     with area:
         var.value = name.title()
-        if name == 'dashboard': dashboard()
+        if name == 'dashboard': await dashboard()
         elif name == 'projects': await projects()
-        elif name == 'analytics': analytics()
-        elif name == 'settings': settings()
+        elif name == 'analytics': await analytics()
+        elif name == 'settings': await settings()
 
 def createDrawer(area,var):
     with ui.drawer('left').classes("bg-primary") as drawer:

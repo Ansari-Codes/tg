@@ -1,7 +1,6 @@
 from comps import compLayout
-from storage import getUserStorage
+import storage
 
 async def render():
-    auth = getUserStorage()
     compLayout.CompHeader()
     compLayout.CompFooter()

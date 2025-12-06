@@ -29,3 +29,6 @@ async def CLEAR():
     """, to_fetch=True)
     for table in tables:
         await RUN_SQL(f"DELETE FROM `{table.get('name')}`;")
+
+# import asyncio
+# asyncio.run(CLEAR())

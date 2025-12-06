@@ -6,7 +6,10 @@ from storage import getUserStorage
 async def unique(item, col):
     return await isUnique(item, col, PROJECTS)
 
-async def insertProject(title: str):
+async def createEmtpyProject():
+    res = Response()
+    if not res.success:return res
+    title = escapeSQL(randomstr())
     owner = getUserStorage().get("id", 0)
     slug = (
         getUserStorage().get("name", randomstr())
@@ -20,7 +23,7 @@ async def insertProject(title: str):
     description = ""
     query = f"""
     INSERT INTO {PROJECTS} (title, owner, slug, pycode, jscode, likes, description)
-    VALUES ('{escapeSQL(title)}', '{escapeSQL(str(owner))}', '{escapeSQL(slug)}', 
+    VALUES ('{escapeSQL(title)}', '{escapeSQL(owner)}', '{escapeSQL(slug)}', 
             '{escapeSQL(pycode)}', '{escapeSQL(jscode)}', '{escapeSQL(likes)}', '{escapeSQL(description)}');
     """
     await RUN_SQL(query)
@@ -28,60 +31,38 @@ async def insertProject(title: str):
     SELECT * FROM {PROJECTS} WHERE slug = '{escapeSQL(slug)}';
     """
     row = await RUN_SQL(fetch_query, True)
-    return row[0] if row else {}
+    res.data = row[0] if row else {}
+    return res
 
-async def createProject(title: str):
-    title = escapeSQL(title.strip().lower()) if title.strip() else randomstr()
+async def getAllProjects(item: int|str|None, by="owner"):
     res = Response()
-    if not await unique(title, 'title'):
-        res.errors['title']="Title already exists"
-    if not res.success:return res
-    res.data = await insertProject(title)
+    if not item:
+        res.errors['project'] = "No identifier provided!"
+        return res
+    projects = await RUN_SQL(f"""
+    SELECT * 
+    FROM {PROJECTS} 
+    WHERE {by} = {item if isinstance(item, (float,int)) else escapeSQL(item)}
+    ;
+    """, True)
+    res.data = projects
     return res
 
 async def loadProject(item, by="slug"):
+    res = Response()
+    value = escapeSQL(str(item))
+    value = f"'{value}'"
     query = f"""
-    SELECT * FROM {PROJECTS} WHERE {by} = '{escapeSQL(str(item))}'
+    SELECT *
+    FROM {PROJECTS}
+    WHERE {by} = {value}
+    ORDER BY id DESC
+    LIMIT 1;
     """
-    res = Response()
-    res.data = ((await RUN_SQL(query, True)) or [{}])[0]
-    return res
-
-async def updateProject(item, by="slug", **updates):
-    res = Response()
-    if not updates:
-        res.errors['updates'] = "No updates provided"
-        return res
-    allowed_cols = {"title", "description", "pycode", "jscode", "likes", "status", "updated_at"}
-    set_clauses = []
-    for col, val in updates.items():
-        if col not in allowed_cols:
-            continue
-        set_clauses.append(f"{col} = '{escapeSQL(str(val))}'")
-    if not set_clauses:
-        res.errors['updates'] = "No valid columns to update"
-        return res
-    set_clauses.append("updated_at = CURRENT_TIMESTAMP")
-    set_clause = ", ".join(set_clauses)
-    query = f"""
-    UPDATE {PROJECTS}
-    SET {set_clause}
-    WHERE {by} = '{escapeSQL(str(item))}';
-    """
-    await RUN_SQL(query)
-    fetch_query = f"""
-    SELECT * FROM {PROJECTS} WHERE {by} = '{escapeSQL(str(item))}';
-    """
-    row = await RUN_SQL(fetch_query, True)
-    res.data = row[0] if row else {}
-    return res
-
-async def getProjects(owner):
-    res = Response()
-    fetch_query = f"""
-    SELECT * FROM {PROJECTS} WHERE owner = '{escapeSQL(str(owner))}';
-    """
-    row = await RUN_SQL(fetch_query, True)
-    print(row)
-    res.data = row[0] if row else {}
+    project = await RUN_SQL(query, True)
+    if project and project[0]:
+        res.data = project[0]
+    else:
+        res.data = {}
+        res.errors["project"] = "Project not found"
     return res
