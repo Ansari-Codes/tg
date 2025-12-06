@@ -10,7 +10,7 @@ def verifyUsername(name: str):
     if not name:
         return False
     for i in name:
-        if i not in digits + ascii_letters:
+        if i not in digits + ascii_letters + ' _-.':
             return False
     return True
 

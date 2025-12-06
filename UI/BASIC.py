@@ -121,7 +121,10 @@ def TextArea(
         min_h: str|None = None,
         overflow: str|None = None,
         flexible: bool = False,
-        config: dict|None = None
+        config: dict|None = None,
+        inp_cls: str = "",
+        inp_prp: str = "",
+        inp_sty: str = "",
     ):
     if not config: config = {}
     ta = ui.input(value=content, **config)
@@ -134,7 +137,7 @@ def TextArea(
     if autogrow: ta.props('autogrow')
     ta.classes(inner_classes)
     ta.props('dense outlined')
-    ta.classes("bg-inp rounded-sm").props('input-class="text-text-secondary"')
+    ta.classes("bg-inp rounded-sm").props(f'input-class="{inp_cls}" input-props="{inp_prp}" input-style="{inp_sty}"')
     return ta
 
 def CheckBox(
@@ -197,3 +200,13 @@ def Notify(
 
 def Dialog():
     return ui.dialog().props('backdrop-filter="hue-rotate(10deg)"')
+
+class logger(ui.html):    
+    def __init__(self, content: str = '', *, sanitize: Callable[[str], str] | Literal[False] = lambda x:x, tag: str = 'div') -> None:
+        super().__init__(content, sanitize=sanitize, tag=tag)
+    def print(self, line: str, classes="", props="", style=""):
+        self.content = f'{self.content}<p class="{classes}" {props} style="{style}">{line}</p><br>'
+        self.update()
+
+def Logger():
+    return logger()

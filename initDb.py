@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS projects (
     pycode TEXT,
     jscode TEXT,
     likes INTEGER DEFAULT 0,
+    status INTEGER DEFAULT 0,
     FOREIGN KEY(owner) REFERENCES users(id)
 );
 """
