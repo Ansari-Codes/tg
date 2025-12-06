@@ -25,12 +25,6 @@ async def signup(
     pswd: str,
     avatar: str = "🐢",
 ) -> Response:
-    """
-    Signup flow:
-     - validates username, mail, password
-     - escapes quotes
-     - inserts and returns inserted row via RUN_SQL
-    """
     name = escapeSQL(name.strip().lower())
     mail = escapeSQL(mail.strip().lower())
     pswd = escapeSQL(pswd)
@@ -48,4 +42,21 @@ async def signup(
     res.data = await insert_user(name, mail, pswd, avatar)
     return res
 
-
+async def login(iden:str, pswd:str)->Response:
+    iden = escapeSQL(iden.strip().lower())
+    pswd = pswd
+    res = Response()
+    query = f"""
+    SELECT * FROM {USERS}
+    WHERE name = '{iden}' OR email = '{iden}';
+    """
+    result = await RUN_SQL(query, True)
+    print("Login:", result)
+    if result and result[0]:
+        data = result[0]
+        if data.get("pswd") == pswd:
+            return res
+        else:
+            res.errors["acc"] = "Password is incorrect!"
+    else: res.errors["acc"] = "Account not found!"
+    return res

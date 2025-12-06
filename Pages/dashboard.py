@@ -11,9 +11,9 @@ def _ask_new_project(d):
     v = Variable()
     async def _c():
         p = await createProject(str(t.value))
-        pid = p.data.get("slug")
+        slug = p.data.get("slug")
         d.close()
-        navigate(f"/create/{pid}",True)
+        navigate(f"/create/{slug}",True)
     with d.classes("flex flex-col min-w-[300px] min-h-[5vh]"):
         with Card():
             t = Input(v, bindings={"strict":False}).classes("w-full")

@@ -1,6 +1,6 @@
 from UI import Label, Header, Input, Button, TextArea, SoftBtn, Col, Row, AddSpace, Html, ui
 
-async def render(id):
+async def render(name):
     with Header():
         Label("Create").classes("text-lg font-bold")
         AddSpace()
