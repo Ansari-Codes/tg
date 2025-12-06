@@ -23,6 +23,7 @@ async def lgn(iv, pv, ie, pe, l):
         return
     res.data['auth'] = True
     updateUserStorage(res.data)
+    print("LogIn:", res.data) 
     Notify("Access grandted!")
     navigate(l)
 

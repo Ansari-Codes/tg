@@ -13,6 +13,8 @@ def updateUserStorage(data: dict, clear=False)->dict:
     return user
 def clearUserStorage():updateUserStorage({},True)
 
+def userID(): return getUserStorage().get("id")
+
 def getThemeStorage()->dict:return _ensure("theme")
 def updateThemeStorage(data: dict, clear=False)->dict:
     theme = _ensure("theme")
@@ -26,3 +28,4 @@ def updateTabStorage(data: dict, clear=False)->dict:
     if clear:tab.clear()
     tab.update(data)
     return tab
+

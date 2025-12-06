@@ -69,6 +69,7 @@ async def sup(nv, mv, pv, cv, ne, me, pe, l):
 
     # success UI feedback (you can customize)
     res.data['auth'] = True
+    print("SignUp:", res.data)
     updateUserStorage(res.data)
     Notify("Account created!")
     navigate(l)

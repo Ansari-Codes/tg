@@ -55,6 +55,7 @@ async def login(iden:str, pswd:str)->Response:
     if result and result[0]:
         data = result[0]
         if data.get("pswd") == pswd:
+            res.data = data
             return res
         else:
             res.errors["acc"] = "Password is incorrect!"

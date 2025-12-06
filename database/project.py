@@ -6,7 +6,10 @@ from storage import getUserStorage
 async def unique(item, col):
     return await isUnique(item, col, PROJECTS)
 
-async def insertProject(title: str):
+async def createEmtpyProject():
+    res = Response()
+    if not res.success:return res
+    title = escapeSQL(randomstr())
     owner = getUserStorage().get("id", 0)
     slug = (
         getUserStorage().get("name", randomstr())
@@ -28,21 +31,19 @@ async def insertProject(title: str):
     SELECT * FROM {PROJECTS} WHERE slug = '{escapeSQL(slug)}';
     """
     row = await RUN_SQL(fetch_query, True)
-    return row[0] if row else {}
-
-async def createProject(title: str):
-    title = escapeSQL(title.strip().lower()) if title.strip() else randomstr()
-    res = Response()
-    if not await unique(title, 'title'):
-        res.errors['title']="Title already exists"
-    if not res.success:return res
-    res.data = await insertProject(title)
+    res.data = row[0] if row else {}
     return res
 
-async def getAllProjects(item: int|str, by="owner"):
+async def getAllProjects(item: int|str|None, by="owner"):
     res = Response()
+    if not item:
+        res.errors['project'] = "No identifier provided!"
+        return res
     projects = await RUN_SQL(f"""
-    SELECT * FROM {PROJECTS} WHERE {by} = {escapeSQL(item)};
+    SELECT * 
+    FROM {PROJECTS} 
+    WHERE {by} = {item if isinstance(item, (float,int)) else escapeSQL(item)}
+    ;
     """, True)
     res.data = projects
     return res
