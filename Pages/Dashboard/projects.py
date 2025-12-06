@@ -13,7 +13,11 @@ async def _ask_new_project():
     navigate(f"/create/{slug}",True)
 
 async def projects():
-    Button("New", _ask_new_project, {"icon":"plus"})
+    async def ask():
+        btn.disable()
+        await _ask_new_project()
+        btn.enable()
+    btn = Button("New", ask, {"icon":"plus"})
     projects = await getAllProjects(userID())
     for project in projects.data:
         with Card().classes("w-full p-4 gap-2"):
