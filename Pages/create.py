@@ -63,11 +63,33 @@ async def render(slug):
         out, err, e = await execute(code.value, safe_globals)
         turtles = [v for v in safe_globals.values() if isinstance(v, Turtle)]
         js = ''
-        for t in turtles:js += '\n'+t.getJs()
-        ui.run_javascript(js)
-        if out:print_(out)
-        if err:print_(err)
-        if e:print_(e)
+        for t in turtles: js += '\n' + t.getJs()
+        await asyncio.sleep(0.1)
+        # In your run() function
+        js = 'console.log("Starting turtle drawing...");\n' + js
+        js += '\nconsole.log("Turtle drawing completed");'
+        wrapped_js = f"""
+        (function() {{
+            const canvas = document.getElementById('t-canvas');
+            if (!canvas) {{
+                console.error('Canvas not found');
+                return;
+            }}
+            const ctx = canvas.getContext('2d');
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            let cw = () => canvas.width;
+            let ch = () => canvas.height;
+            let cx = () => cw() / 2;
+            let cy = () => ch() / 2;
+            {js}
+            console.log('Canvas dimensions:', canvas.width, canvas.height);
+            console.log('Canvas style:', canvas.style.cssText);
+        }})();
+        """
+        ui.run_javascript(wrapped_js)
+        if out: print_(out)
+        if err: print_(err)
+        if e: print_(e)
     with ui.splitter().classes("w-full h-[84vh] p-0 m-0") as s:
         with s.before:
             with ui.splitter(horizontal=True).classes("w-full h-full") as sp:
@@ -83,7 +105,7 @@ async def render(slug):
             Button("Run", run)
             Html("""
             <div id="canvas-wrapper" 
-                style="width:100%; height:100%; overflow:hidden; position:relative; background:#f0f0f0;">
+                style="width:100%; height:100%; overflow:hidden; position:relative; background:#a0a0a0;">
                 <canvas id="t-canvas" width="1200" height="800" 
                         style="transform-origin: 0 0; background:white;"></canvas>
             </div>

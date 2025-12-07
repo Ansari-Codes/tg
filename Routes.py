@@ -33,5 +33,6 @@ async def cd():
 @ui.page("/create/{slug}")
 async def cc(slug: str):
     print("Creator: ", getUserStorage())
-    if auth(): await rc(slug)
-    else: navigate(f"/login?redirectTo=/create/{slug}")
+    await rc(slug)
+    # if auth(): await rc(slug)
+    # else: navigate(f"/login?redirectTo=/create/{slug}")
