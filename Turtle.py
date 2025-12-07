@@ -11,9 +11,7 @@ class Turtle:
         self._js_actions = []
 
     # ----------------- JS Storage -----------------
-    def getJsActions(self):
-        """Return the list of JS actions (internal use)."""
-        return self._js_actions
+    def getJsActions(self): return self._js_actions
 
     # ----------------- Movement -----------------
     def forward(self, distance):
@@ -27,19 +25,14 @@ class Turtle:
             )
         self._x, self._y = new_x, new_y
 
-    def backward(self, distance):
-        self.forward(-distance)
-
-    def right(self, angle):
-        self._angle -= angle
-
-    def left(self, angle):
-        self._angle += angle
+    def backward(self, distance): self.forward(-distance)
+    def right(self, angle): self._angle -= angle
+    def left(self, angle): self._angle += angle
 
     def goto(self, x, y):
         if self._pen:
             self._js_actions.append(
-                f"ctx.beginPath(); ctx.moveTo((cw()//2) + {self._x}, (ch()//2) + {self._y}); ctx.lineTo({x}, {y}); "
+                f"ctx.beginPath(); ctx.moveTo((cw()//2) + {self._x}, (ch()//2) + {self._y}); ctx.lineTo((cw()//2) + {x}, (ch()//2) + {y}); "
                 f"ctx.strokeStyle='{self._color}'; ctx.lineWidth={self._width}; ctx.stroke();"
             )
         self._x, self._y = x, y
@@ -48,34 +41,29 @@ class Turtle:
         self._angle = angle
         return self._angle
 
-    def getHeading(self):
-        return self._angle
+    def getHeading(self): return self._angle
 
     # ----------------- Pen -----------------
     def setPen(self, value: bool):
         self._pen = bool(value)
         return self._pen
 
-    def getPen(self):
-        return self._pen
+    def getPen(self): return self._pen
 
     def setColor(self, color):
         self._color = color
         return self._color
 
-    def getColor(self):
-        return self._color
+    def getColor(self): return self._color
 
     def setLineWidth(self, w):
         self._width = w
         return self._width
 
-    def getLineWidth(self):
-        return self._width
+    def getLineWidth(self): return self._width
 
     # ----------------- Utility -----------------
-    def getPosition(self):
-        return (self._x, self._y)
+    def getPosition(self): return (self._x, self._y)
 
     # ----------------- Generate JS -----------------
     def getJs(self):
@@ -88,3 +76,10 @@ class Turtle:
         ]
         js_code.extend(self._js_actions)
         return "\n".join(js_code)
+
+'''
+t = Turtle()
+for i in range(4):
+    t.forward(90)
+    t.left(90)
+'''

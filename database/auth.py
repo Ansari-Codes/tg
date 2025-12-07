@@ -40,6 +40,7 @@ async def signup(
         res.errors['mail'] = "Email already taken!"
     if not res.success: return res
     res.data = await insert_user(name, mail, pswd, avatar)
+    print(res.data)
     return res
 
 async def login(iden:str, pswd:str)->Response:

@@ -3,7 +3,7 @@ from storage import getUserStorage, getThemeStorage
 
 class Response:
     def __init__(self):
-        self.data = dict()
+        self.data:list|dict = dict()
         self.errors = dict()
     @property
     def success(self):
