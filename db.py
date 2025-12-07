@@ -30,5 +30,14 @@ async def CLEAR():
     for table in tables:
         await RUN_SQL(f"DELETE FROM `{table.get('name')}`;")
 
+async def DROP():
+    print("cli.py: Dropping tables...")
+    DROP_COMMENTS = "DROP TABLE IF EXISTS comments;"
+    DROP_PROJECTS = "DROP TABLE IF EXISTS projects;"
+    DROP_USERS = "DROP TABLE IF EXISTS users;"
+    drop = DROP_COMMENTS + DROP_PROJECTS + DROP_USERS
+    await RUN_SQL(drop)
+    print("cli.py: All tables dropped successfully!")
+
 # import asyncio
-# asyncio.run(CLEAR())
+# asyncio.run(DROP())

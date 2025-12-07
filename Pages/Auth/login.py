@@ -58,5 +58,5 @@ async def render(l='/dashboard'):
                         .bind_visibility_from(pe, "value")
                 widgets.append(Input(pv).classes("w-full"))
 
-                btn = Button("Create Account", on_click=sp)
+                btn = Button("LogIn", on_click=sp)
                 widgets.append(btn)

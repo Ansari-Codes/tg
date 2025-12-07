@@ -12,28 +12,31 @@ async def _ask_new_project():
     slug = p.data.get("slug")
     navigate(f"/create/{slug}",True)
 
+def proj(project: dict):
+    slug = project.get('slug')
+    Label(project.get("title", "Untitled")).classes("text-xl font-bold")
+    with RawRow().classes("w-full px-2 gap-1 items-center"):
+        with RawRow().classes("w-fit font-bold items-center"):
+            if project.get("status"): 
+                Icon("public", 'sm')
+                Label("Public").classes("text-lg")
+            else: 
+                Icon("drafts", 'sm')
+                Label("Draft").classes("text-lg")
+        with RawRow().classes("w-fit font-bold items-center"):
+            Icon("favorite", 'sm')
+            Label(project.get("likes",0)).classes("text-lg")
+        AddSpace()
+        Icon("edit", 'sm').classes("p-1 bg-primary rounded-sm cursor-pointer text-sm").on('click', lambda:navigate(f"/create/{slug}",True))
+        Icon("open_in_new", 'sm').classes("p-1 bg-primary rounded-sm cursor-pointer text-sm").on('click', lambda:navigate(f"/project/{slug}",True))
+
 async def projects():
     async def ask():
         btn.disable()
         await _ask_new_project()
         btn.enable()
-    btn = Button("New", ask, {"icon":"plus"})
+    btn = Button("New", ask, {"icon":"add"})
     projects = await getAllProjects(userID())
     for project in projects.data:
-        with Card().classes("w-full p-4 gap-2"):
-            slug = project.get('slug')
-            Label(project.get("title", "Untitled")).classes("text-xl font-bold")
-            Label(f"ID: {project.get('id')}").classes("text-sm opacity-70")
-            Label(f"Slug: {project.get('slug')}").classes("text-sm opacity-70")
-            Label("Description:").classes("text-md font-semibold mt-2")
-            Label(project.get("description", "") or "No description").classes("text-sm")
-            Label("Likes:").classes("text-md font-semibold mt-2")
-            Label(str(project.get("likes", 0))).classes("text-sm")
-            Label("Python Code:").classes("text-md font-semibold mt-2")
-            Label(project.get("pycode", "")).classes("text-xs bg-gray-200 p-2 rounded w-full")
-            Label("JavaScript Code:").classes("text-md font-semibold mt-2")
-            Label(project.get("jscode", "")).classes("text-xs bg-gray-200 p-2 rounded w-full")
-            with RawRow():
-                Button("Edit", lambda s=slug:navigate(f"/create/{s}",True))
-                Button("View", lambda s=slug:navigate(f"/project/{s}",True))
+        with Card().classes("w-full p-4 gap-2"): proj(project)
     print(projects.data)
