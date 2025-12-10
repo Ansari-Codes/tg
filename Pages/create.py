@@ -54,7 +54,7 @@ def exportCanvas():
 
 async def save():
     project = gts()
-    n = ui.notification("Saving", position="top-right", spinner=True, timeout=100)
+    n = ui.notification("Saving", position="bottom-left", color='primary', spinner=True, timeout=100)
     await updateProject(project)
     n.dismiss()
     uts(project)
@@ -192,7 +192,7 @@ async def render(slug):
     project:dict = projec.data
     project['status'] = project.get("status", "0").__str__()
     uts(project)
-    isSmallScreen = await ui.run_javascript("window.width < 500")
+    isSmallScreen = int(await ui.run_javascript("window.innerWidth")) < 500
     code = Variable()
 
     def print_(*args, end="\n", classes="", props="", style=""):
@@ -247,7 +247,7 @@ async def render(slug):
     sss = lambda x:"<span class='text-yellow-500'>Draft</span>" if not float(x) else "<span class='text-green-500'>Public</span>"
     ss = Html(sss(project.get("status"))).classes("truncate text-lg h-full font-bold")
     with Header().classes("flex flex-row items-center") as header:
-        if isSmallScreen:
+        if not isSmallScreen:
             await createFileMenu(dialog, tm, ss)
             await createEditMenu()
             Button("Run", run)

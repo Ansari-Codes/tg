@@ -4,7 +4,7 @@ from db import  RUN_SQL
 from uuid import uuid4
 from random import random
 
-def randomstr(): return uuid4().hex
+def randomstr(max=6): return uuid4().hex[:max]
 def rnd(l=6): return ''.join([f'{random().__str__().split(".")[0]}' for i in range(l)])
 def verifyUsername(name: str):
     if not name:

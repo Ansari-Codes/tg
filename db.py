@@ -1,6 +1,16 @@
 import httpx
 from devdb import SQL
-API_URL = "http://worldofansari.com/dbapi"
+import os
+from dotenv import load_dotenv
+
+# Load .env variables automatically
+load_dotenv()  
+
+API_URL = os.getenv("API_URL","")
+PASSWORD = os.getenv("PASSWORD","")
+print(API_URL, PASSWORD)
+if not (API_URL or PASSWORD):
+    raise Exception("API_URL Or PASSWORD didn't load!")
 q = 0
 
 USERS = "users"
@@ -9,14 +19,16 @@ COMMENTS = "comments"
 
 async def RUN_SQL(query: str, to_fetch: bool = False):
     global q
-    payload = {"query": query, "to_fetch": to_fetch, "name": "turtlegraphics"}
+    payload = {"query": query, "to_fetch": to_fetch, "name": "turtlegraphics", "password":PASSWORD}
     q += 1
     print(f"DB: {q}: Running\n\t", query)
     try:
         async with httpx.AsyncClient(timeout=10) as client:
             response = await client.post(API_URL, json=payload)
             response.raise_for_status()
-            return response.json().get("data", [{}])
+            res = response.json()
+            if res.get("success"): return res.get("data", [{}])
+            else: raise Exception(res.get("error"))
         # return (await SQL(query, to_fetch)) or [{}]
     except httpx.HTTPStatusError as e: raise
     except httpx.RequestError as e: raise

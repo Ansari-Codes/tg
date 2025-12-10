@@ -9,7 +9,7 @@ async def unique(item, col):
 async def createEmtpyProject():
     res = Response()
     if not res.success:return res
-    title = escapeSQL(randomstr())
+    title = randomstr()
     owner = getUserStorage().get("id", 0)
     slug = randomstr()
     pycode = "print('Turtle graphics')"

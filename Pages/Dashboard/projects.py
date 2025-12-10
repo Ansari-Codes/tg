@@ -6,7 +6,8 @@ from storage import getUserStorage, userID
 from loading import showLoading
 
 async def _ask_new_project():
-    n = ui.notification("Creating project!", position='top-right', spinner=True, timeout=100, close_button=True, color='secondary')
+    n = ui.notification("Creating project!", position='bottom-left', color='primary',
+                     spinner=True, timeout=100, close_button=True)
     try:
         p = await createEmtpyProject()
         n.dismiss()

@@ -34,17 +34,17 @@ async def signup(
     if not verifyUsername(name): res.errors['name'] = "Username can only contain letters and numbers."
     if not verifyMail(mail): res.errors['mail'] = "Invalid mail."
     if not verifyPswd(pswd): res.errors['pswd'] = "Password is not strong."
-    try:
-        if not await unique(name, 'name'):
-            res.errors['name'] = "Username already taken!"
-        if not await unique(mail, 'email'):
-            res.errors['mail'] = "Email already taken!"
-        if not res.success: return res
-        res.data = await insert_user(name, mail, pswd, avatar)
-    except Exception as e:
-        res.errors['other'] = "Cannot sign you up!"
-        print(e)
-        return res
+    # try:
+    if not await unique(name, 'name'):
+        res.errors['name'] = "Username already taken!"
+    if not await unique(mail, 'email'):
+        res.errors['mail'] = "Email already taken!"
+    if not res.success: return res
+    res.data = await insert_user(name, mail, pswd, avatar)
+    # except Exception as e:
+    #     res.errors['other'] = "Cannot create account!"
+    #     print(e)
+    #     return res
     print(res.data)
     return res
 
