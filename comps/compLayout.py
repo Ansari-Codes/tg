@@ -2,7 +2,7 @@ from UI import Header, Label, Html, SoftBtn, AddSpace, Footer, Link, navigate
 from storage import getUserStorage, updateUserStorage
 from ENV import NAME, ICON
 
-def CompHeader():
+async def CompHeader():
     auth = getUserStorage().get("auth", False)
     with Header() as h:
         Html(ICON).classes("text-2xl h-full")
@@ -19,7 +19,7 @@ def CompHeader():
             SoftBtn("LogIn", link='/login')
     return h
 
-def CompFooter():
+async def CompFooter():
     auth = getUserStorage().get("auth", False)
     with Footer() as f:
         if auth: 

@@ -1,6 +1,78 @@
 import math
+from database.helpers import randomstr
 
-class Turtle:
+class Screen:
+    def __init__(self):
+        self._width = 800
+        self._height = 500
+        self._bgcolor = "white"
+        self._dpi = 1
+        self._js_actions = []
+        self._delay = 0
+    def setDelay(self, delay):
+        if delay < 0:
+            raise ValueError("Delay must be a positive number!")
+        self._delay = delay
+        return delay
+    def setSize(self, width, height):
+        self._width = width
+        self._height = height
+        self._js_actions.append(
+            f"if (!window.is_running) return;"
+            f"canvas.width = {width} * {self._dpi}; "
+            f"canvas.height = {height} * {self._dpi};"
+        )
+        return width, height
+    def setBg(self, color):
+        self._bgcolor = color
+        self._js_actions.append(
+            f"canvas.style.background = '{color}';"
+        )
+        return color
+    def setDpi(self, dpi):
+        self._dpi = dpi
+        self._js_actions.append(
+            f"if (!window.is_running) return;"
+            f"canvas.style.width = '{self._width}px'; "
+            f"canvas.style.height = '{self._height}px'; "
+            f"canvas.width = {self._width} * {dpi}; "
+            f"canvas.height = {self._height} * {dpi};"
+        )
+        return dpi
+    def getSize(self):
+        return self._width, self._height
+    def getBg(self): return self._bgcolor
+    def getDpi(self): return self._dpi
+    def getDelay(self): return self._delay
+    def wait(self, ms=0):
+        if ms < 0:raise ValueError("MilliSeconds `ms` must be a positive number!")
+        self._js_actions.append(f"await delay({ms})")
+    def clear(self):
+        self._js_actions.append(
+            "canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);"
+            f"if (!window.is_running) return;"
+        )
+    def grid(self, x_spacing=25, y_spacing=25, color="#ddd"):
+        """optional: draw a background grid"""
+        self._js_actions.append(
+            f"""
+            if (!window.is_running) return;
+            let gctx = canvas.getContext('2d');
+            gctx.beginPath();
+            gctx.strokeStyle='{color}';
+            for (let x=0; x<canvas.width; x+={x_spacing}) {{
+                gctx.moveTo(x,0);
+                gctx.lineTo(x,canvas.height);
+            }}
+            for (let y=0; y<canvas.height; y+={y_spacing}) {{
+                gctx.moveTo(0,y);
+                gctx.lineTo(canvas.width,y);
+            }}
+            gctx.stroke();
+            """
+        )
+
+class T:
     def __init__(self):
         self._x = 0
         self._y = 0
@@ -8,11 +80,13 @@ class Turtle:
         self._pen = True
         self._color = "black"
         self._width = 1
-        self._js_actions = []
+        self._delay = 0
+        self._name = "turtle_" + randomstr()
+        self._ctx = f"{self._name}_ctx"
+        self._js_actions =  []
 
     # ----------------- JS Storage -----------------
     def getJsActions(self): return self._js_actions
-
     # ----------------- Movement -----------------
     def forward(self, distance):
         rad = math.radians(self._angle)
@@ -20,14 +94,16 @@ class Turtle:
         new_y = self._y + distance * math.sin(rad)
         if self._pen:
             self._js_actions.append(
-                f"ctx.beginPath(); "
-                f"ctx.moveTo(cx() + {self._x}, cy() + {self._y}); "
-                f"ctx.lineTo(cx() + {new_x}, cy() + {new_y}); "
-                f"ctx.strokeStyle='{self._color}'; ctx.lineWidth={self._width}; ctx.stroke();"
+                f"if (!window.is_running) return;"
+                f"await delay({self._delay}); "
+                f"{self._ctx}.beginPath(); "
+                f"{self._ctx}.moveTo(cx() + {self._x}, cy() + {self._y}); "
+                f"{self._ctx}.lineTo(cx() + {new_x}, cy() + {new_y}); "
+                f"{self._ctx}.strokeStyle='{self._color}'; {self._ctx}.lineWidth={self._width}; {self._ctx}.stroke();"
             )
         else:
             self._js_actions.append(
-                f"ctx.moveTo(cx() + {new_x}, cy() + {new_y});"
+                f"{self._ctx}.moveTo(cx() + {new_x}, cy() + {new_y});"
             )
         self._x, self._y = new_x, new_y
     def backward(self, distance): self.forward(-distance)
@@ -36,23 +112,28 @@ class Turtle:
     def goto(self, x, y):
         if self._pen:
             self._js_actions.append(
-                f"ctx.beginPath(); "
-                f"ctx.moveTo(cx() + {self._x}, cy() + {self._y}); "
-                f"ctx.lineTo(cx() + {x}, cy() + {y}); "
-                f"ctx.strokeStyle='{self._color}'; ctx.lineWidth={self._width}; ctx.stroke();"
+                f"if (!window.is_running) return;"
+                f"await delay({self._delay}); "
+                f"{self._ctx}.beginPath(); "
+                f"{self._ctx}.moveTo(cx() + {self._x}, cy() + {self._y}); "
+                f"{self._ctx}.lineTo(cx() + {x}, cy() + {y}); "
+                f"{self._ctx}.strokeStyle='{self._color}'; {self._ctx}.lineWidth={self._width}; {self._ctx}.stroke();"
             )
         else:
-            self._js_actions.append(f"ctx.moveTo(cx() + {x}, cy() + {y});")
+            self._js_actions.append(f"{self._ctx}.moveTo(cx() + {x}, cy() + {y});")
         self._x, self._y = x, y
     def setHeading(self, angle):
         self._angle = angle
         return self._angle
     def getHeading(self): return self._angle
     # ----------------- Pen -----------------
-    def setPen(self, value: bool):
-        self._pen = bool(value)
+    def up(self):
+        self._pen = False
         return self._pen
-    def getPen(self): return self._pen
+    def down(self):
+        self._pen = True
+        return self._pen
+    def isDown(self): return self._pen
     def setColor(self, color):
         self._color = color
         return self._color
@@ -61,19 +142,20 @@ class Turtle:
         self._width = w
         return self._width
     def getLineWidth(self): return self._width
-    def clear(self): self._js_actions.append("ctx.clearRect(0, 0, cw(), ch());")
-
-    # ----------------- Utility -----------------
+    def clear(self): self._js_actions.append(f"{self._ctx}.clearRect(0, 0, cw(), ch());")
     def getPosition(self): return (self._x, self._y)
-    # ----------------- Generate JS -----------------
-    def getJs(self):
-        js_code = []
-        js_code.extend(self._js_actions)
-        return '\n'.join(js_code)
 
 '''
 t = Turtle()
+t2 = Turtle()
+t.clear()
+t2.clear()
+t2.up()
+t2.forward(110)
+t2.down()
 for i in range(4):
-    t.forward(90)
+    t.forward(100)
     t.left(90)
+    t2.forward(100)
+    t2.left(90)
 '''

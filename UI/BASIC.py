@@ -72,11 +72,14 @@ def SoftBtn(
     btn = btn.on('click', on_click)
     return btn
 
+def Choice(choices:list|dict, value, **kwargs):
+    return ui.toggle(choices, value=value, **kwargs)
+
 def Input(
         model = None,
         default_props: bool|None = True,
         bindings: dict|None = None,
-        type: Literal['text', 'color', 'number'] = 'text',
+        type: Literal['text', 'color', 'number', 'file'] = 'text',
         **kwargs
     ):
     bindings = bindings or {}
@@ -84,6 +87,7 @@ def Input(
     if type == "text": inp = ui.input(**kwargs)
     elif type == "color": inp = ui.color_input(**kwargs)
     elif type == 'number': inp = ui.number(**kwargs)
+    else: inp = ui.input().props(f'type="{type}"')
     if inp:
         inp.classes("bg-inp rounded-sm")
         inp.props('input-class="text-text-secondary"')
@@ -162,7 +166,7 @@ def Notify(
         position:Literal['top-left', 'top-right', 'bottom-left', 
                          'bottom-right', 'top', 'bottom', 'left', 
                          'right', 'center'
-                        ]='top-right',
+                        ]='bottom-left',
         close_button='✖', 
         **kwargs
     ): ui.notify(message, position=position, close_button=close_button, **kwargs)
@@ -205,7 +209,7 @@ class logger(ui.html):
     def __init__(self, content: str = '', *, sanitize: Callable[[str], str] | Literal[False] = lambda x:x, tag: str = 'div') -> None:
         super().__init__(content, sanitize=sanitize, tag=tag)
     def print(self, line: str, classes="", props="", style=""):
-        self.content = f'{self.content}<p class="{classes}" {props} style="{style}">{line}</p><br>'
+        self.content = f'{self.content}<p class="{classes}" {props} style="{style}">{line}</p>'
         self.update()
 
 def Logger():

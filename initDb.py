@@ -5,7 +5,9 @@ CREATE TABLE IF NOT EXISTS users (
     email TEXT UNIQUE NOT NULL,
     pswd TEXT NOT NULL,
     avatar TEXT,
-    role TEXT DEFAULT 'user'
+    role TEXT DEFAULT 'user',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 """
 
@@ -20,6 +22,8 @@ CREATE TABLE IF NOT EXISTS projects (
     jscode TEXT,
     likes INTEGER DEFAULT 0,
     status INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(owner) REFERENCES users(id)
 );
 """
@@ -31,12 +35,13 @@ CREATE TABLE IF NOT EXISTS comments (
     commentor INTEGER NOT NULL,
     project INTEGER NOT NULL,
     reply_to INTEGER,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(commentor) REFERENCES users(id),
     FOREIGN KEY(project) REFERENCES projects(id),
     FOREIGN KEY(reply_to) REFERENCES comments(id)
 );
 """
-
 
 from db import RUN_SQL
 

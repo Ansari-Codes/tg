@@ -1,1 +1,1 @@
-async def analytics():pass
+async def analytics(area):pass

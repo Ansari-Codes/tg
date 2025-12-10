@@ -3,8 +3,9 @@ from storage import getUserStorage, getThemeStorage
 
 class Response:
     def __init__(self):
-        self.data:list|dict = dict()
+        self.data:dict = dict()
         self.errors = dict()
+        self.meta = dict()
     @property
     def success(self):
         return not self.errors
@@ -12,6 +13,11 @@ class Response:
 class Variable:
     def __init__(self, value="") -> None:
         self.value = value
+    def set(self, value):
+        self.value  = value
+        return self.value
+    def get(self):
+        return self.value
 
 class Auth:
     @property

@@ -65,13 +65,15 @@ async def sup(nv, mv, pv, cv, ne, me, pe, l):
             me.value = res.errors['mail']
         if 'pswd' in res.errors:
             pe.value = res.errors['pswd']
+        if 'other' in res.errors:
+            Notify(res.errors.get("other", "An unknown error occured!"), type='negative')
         return
 
     # success UI feedback (you can customize)
     res.data['auth'] = True
     print("SignUp:", res.data)
     updateUserStorage(res.data)
-    Notify("Account created!")
+    Notify("Account created!", type='positive')
     navigate(l)
 
 async def render(l='/dashboard'):
@@ -120,4 +122,6 @@ async def render(l='/dashboard'):
                 widgets.append(checkbox)
                 btn = Button("Create Account", on_click=sp)
                 btn.bind_enabled_from(checkbox, "value").classes("w-full")
+                btn2 = Button("LogIn", on_click=lambda:navigate(f"/login?redirectTo={l}"), config=dict(color='secondary'))
+                widgets.append(btn2)
                 widgets.append(btn)

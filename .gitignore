@@ -1,0 +1,4 @@
+.nicegui/
+./__pycache__/*
+database.sqlite
+JQL.py

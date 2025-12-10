@@ -1,19 +1,29 @@
-from UI import Label, Input, Button, Icon, RawCol, RawRow, Card, SoftBtn, AddSpace, Header, Dialog, navigate, ui
+from UI import Label, Input, Button, Icon, RawCol, RawRow, Card, SoftBtn, AddSpace, Header, Dialog, navigate, Notify, ui
 from ENV import NAME, ICON
 from models import Variable
 from database.project import createEmtpyProject, getAllProjects
-from storage import getUserStorage, userID
+from storage import getUserStorage, userID, getTabStorage as gts, updateTabStorage as uts
 from .Dashboard import *
+from loading import showLoading
 
-async def changePage(area:ui.element, var:Variable, name:str):
+async def changePage(area:ui.element, var:Variable, name:str, triggerer=None):
     area.clear()
     name = name.lower()
     with area:
         var.value = name.title()
-        if name == 'dashboard': await dashboard()
-        elif name == 'projects': await projects()
-        elif name == 'analytics': await analytics()
-        elif name == 'settings': await settings()
+        if triggerer:
+            for t in triggerer:t.set_enabled(False)
+        try:
+            if name == 'dashboard': await dashbd(area)
+            elif name == 'projects': await projects(area)
+            elif name == 'analytics': await analytics(area)
+            elif name == 'settings': await settings(area)
+        except Exception as e:
+            Notify(f"We cannot take you to {name}!", type="negative")
+        finally:
+            if triggerer:
+                for t in triggerer:t.set_enabled(True)
+        uts({"tab": name})
 
 def createDrawer(area,var):
     with ui.drawer('left').classes("bg-primary") as drawer:
@@ -25,32 +35,43 @@ def createDrawer(area,var):
             "Projects": {
                 "icon": "code"
             },
-            "Analytics": {
-                "icon": "bar_chart"
-            },
         }
         with RawCol().classes("w-full h-fit gap-1"):
+            bs = []
             for name, kw in btns.items():
-                Button(name, on_click=lambda name=name: changePage(area, var, name), config=kw).classes("w-full bg-secondary").props('align="left"')
-            Button("Settings", on_click=lambda:changePage(area, var, "settings"), config=dict(icon="settings")).classes("w-full bg-secondary").props('align="left"')
-        return drawer
+                b = Button(name, config=kw).classes("w-full bg-secondary").props('align="left"')
+                bs.append((lambda b=b: b)())
+                b.on_click(lambda _,name=name,b=bs: changePage(area, var, name, b))
+            sb = Button("Settings", config=dict(icon="settings")).classes("w-full bg-secondary").props('align="left"')
+            bs.append(sb)
+            sb.on_click(lambda bs=bs:changePage(area, var, "settings",bs))
+        return drawer, bs
 
 async def render():
+    loading = showLoading("Dashboard").classes("w-full h-[73vh]")
     var = Variable()
     d = []
     def toggle(): 
         if d:d[0].toggle()
     context = ui.context
+    await context.client.connected()
     with Header() as header:
-        Button(config={
-            "icon": "menu"
-        }, on_click=toggle).classes("px-1 py-1 text-md")
+        Icon('menu','md').on('click', toggle).classes(
+                "rounded transition-all duration-200 "
+                "hover:shadow-md hover:brightness-75 "
+                "cursor-pointer"
+            )
         AddSpace()
         Label(model=var, model_configs={"strict":False}).classes("text-2xl font-bold font-sans")
         AddSpace()
         Label("")
-    area = ui.element()
-    d.append(createDrawer(area, var))
-    await changePage(area, var, "dashboard")
+    header.classes("p-2 m-0")
+    area = ui.element().classes("w-full")
+    dbs = createDrawer(area, var)
+    drawer = dbs[0]
+    bs = dbs[-1]
+    d.append(drawer)
     page_layout = context.client.layout
     page_layout.props(remove='view', add='view="lHh lpR lFf"')
+    loading.delete()
+    await changePage(area, var, gts().get("tab", "dashboard"),bs)

@@ -35,4 +35,3 @@ async def isUnique(item, col, table):
 
 def escapeSQL(s) -> str:
     return str(s).replace("'", "''")
-

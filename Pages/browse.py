@@ -3,4 +3,3 @@ import storage
 
 async def render():
     await compLayout.CompHeader()
-    await compLayout.CompFooter()

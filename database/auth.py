@@ -8,7 +8,7 @@ async def unique(item, col):
 
 async def insert_user(name, mail, pswd, avatar):
     query = f"""
-    INSERT INTO {USERS} (name, email, pswd, avatar)
+    INSERT INTO {USERS} ( name , email , pswd , avatar )
     VALUES ('{name}', '{mail}', '{pswd}', '{avatar}');
     """
     await RUN_SQL(query)
@@ -34,12 +34,17 @@ async def signup(
     if not verifyUsername(name): res.errors['name'] = "Username can only contain letters and numbers."
     if not verifyMail(mail): res.errors['mail'] = "Invalid mail."
     if not verifyPswd(pswd): res.errors['pswd'] = "Password is not strong."
-    if not await unique(name, 'name'):
-        res.errors['name'] = "Username already taken!"
-    if not await unique(mail, 'email'):
-        res.errors['mail'] = "Email already taken!"
-    if not res.success: return res
-    res.data = await insert_user(name, mail, pswd, avatar)
+    try:
+        if not await unique(name, 'name'):
+            res.errors['name'] = "Username already taken!"
+        if not await unique(mail, 'email'):
+            res.errors['mail'] = "Email already taken!"
+        if not res.success: return res
+        res.data = await insert_user(name, mail, pswd, avatar)
+    except Exception as e:
+        res.errors['other'] = "Cannot sign you up!"
+        print(e)
+        return res
     print(res.data)
     return res
 
@@ -51,7 +56,12 @@ async def login(iden:str, pswd:str)->Response:
     SELECT * FROM {USERS}
     WHERE name = '{iden}' OR email = '{iden}';
     """
-    result = await RUN_SQL(query, True)
+    try:
+        result = await RUN_SQL(query, True)
+    except Exception as e:
+        res.errors['acc'] = "Unable to login"
+        print(e)
+        return res
     print("Login:", result)
     if result and result[0]:
         data = result[0]

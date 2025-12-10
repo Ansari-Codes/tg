@@ -19,12 +19,12 @@ async def lgn(iv, pv, ie, pe, l):
     pswd = pv.value.strip()
     res = await login(iden, pswd)
     if not res.success:
-        Notify(res.errors.get("acc", "Unknown error occured!"))
+        Notify(res.errors.get("acc", "Unknown error occured!"), type='negative')
         return
     res.data['auth'] = True
     updateUserStorage(res.data)
     print("LogIn:", res.data) 
-    Notify("Access grandted!")
+    Notify("Access granted!", type='positive')
     navigate(l)
 
 async def render(l='/dashboard'):
@@ -59,4 +59,6 @@ async def render(l='/dashboard'):
                 widgets.append(Input(pv).classes("w-full"))
 
                 btn = Button("LogIn", on_click=sp)
+                btn2 = Button("SignUp", on_click=lambda:navigate(f"/signup?redirectTo={l}"), config=dict(color='secondary'))
                 widgets.append(btn)
+                widgets.append(btn2)
