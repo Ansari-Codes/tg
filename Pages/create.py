@@ -254,7 +254,7 @@ async def render(slug):
             Button("Stop", lambda: ui.run_javascript("window.is_running = false;"))
         else:
             with Button(config=dict(icon="menu")):
-                with ui.menu().props("auto-close"):
+                with ui.menu():
                     (await createFileMenu(dialog, tm, ss)).classes("w-full")
                     (await createEditMenu()).classes("w-full")
                     Button("Run", run).classes("w-full")
@@ -271,7 +271,8 @@ async def render(slug):
                     project.get("pycode", ""),
                     language='Python',
                     highlight_whitespace=True,
-                    theme="githubLight"
+                    theme="githubLight",
+                    on_change=lambda x:uts({"pycode":x.value.strip()})
                 ).classes("w-full h-full")
                     t.bind_value(code)
                     code.value = project.get('pycode') #type:ignore
