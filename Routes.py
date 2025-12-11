@@ -4,6 +4,7 @@ from Pages.Auth.login import render as rl
 from Pages.dashboard import render as rd
 from Pages.create import render as rc
 from Pages.explore import render as re
+from Pages.project import render as rp
 from storage import getUserStorage
 from UI import navigate, INIT_THEME
 from ENV import ui
@@ -19,6 +20,11 @@ async def cw():
 async def cb(): 
     INIT_THEME()
     await re()
+
+@ui.page("/project/{slug}")
+async def cp(slug: str): 
+    INIT_THEME()
+    await rp(slug)
 
 @ui.page("/signup")
 async def csp(redirectTo: str = '/dashboard'):
@@ -47,3 +53,4 @@ async def cc(slug: str):
     INIT_THEME()
     if auth(): await rc(slug)
     else: navigate(f"/login?redirectTo=/create/{slug}")
+
