@@ -10,6 +10,11 @@ async def createEmtpyProject():
     res = Response()
     if not res.success:return res
     title = randomstr()
+    try:
+        if not unique(title, 'title'):
+            title = randomstr(8)
+    except Exception as e:
+        res.errors['project'] = "Unable to create project!"
     owner = getUserStorage().get("id", 0)
     slug = randomstr()
     pycode = "print('Turtle graphics')"
@@ -144,3 +149,12 @@ async def updateProject(data: dict):
         return res
     res.data = row[0] if row else {}
     return res
+
+async def deleteProject(id):
+    res = Response()
+    try:
+        await RUN_SQL(f"DELETE FROM {PROJECTS} WHERE id = {id};")
+    except Exception as e:
+        res.errors['error'] = str(e)
+    return res
+

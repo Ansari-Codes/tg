@@ -67,7 +67,11 @@ async def rename(d, title_model):
     async def _rname():
         value = rinp.value.__str__().strip().lower()
         for i in w: i.disable()
-        if not (await unique(value, "title")): Notify("Title already exists! Try different one!")
+        if not (await unique(value, "title")): 
+            Notify("Title already exists! Try different one!")
+            for i in w: i.enable()
+            uts(project)
+            return
         else: 
             await updateProject({"id": gts().get("id"), "title": value})
             title_model.value = value
@@ -272,7 +276,7 @@ async def render(slug):
                     language='Python',
                     highlight_whitespace=True,
                     theme="githubLight",
-                    on_change=lambda x:uts({"pycode":x.value.strip()})
+                    on_change=lambda x:uts({"pycode":str(x.value).strip()})
                 ).classes("w-full h-full")
                     t.bind_value(code)
                     code.value = project.get('pycode') #type:ignore

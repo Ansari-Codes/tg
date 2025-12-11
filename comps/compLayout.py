@@ -8,7 +8,8 @@ async def CompHeader():
         Html(ICON).classes("text-2xl h-full")
         Label(NAME).classes("font-bold text-2xl h-full")
         AddSpace()
-        if auth: 
+        SoftBtn("Explore", link='/explore')
+        if auth:
             SoftBtn("Dashboard", link='/dashboard')
             SoftBtn("LogOut", clr='red', on_click=lambda:[
                 updateUserStorage({}, clear=True),

@@ -1,13 +1,13 @@
-from UI import Label, Input, Button, Icon, RawCol, RawRow, Card, SoftBtn, Choice, AddSpace, Header, Dialog, navigate, Select, ui, Notify
+from UI import Label, Input, Button, Icon, RawCol, RawRow, Card, SoftBtn, Choice, AddSpace, Header, confirm, Dialog, navigate, Select, ui, Notify
 from ENV import NAME, ICON
 from models import Variable
-from database.project import createEmtpyProject, getAllProjects
+from database.project import createEmtpyProject, getAllProjects, deleteProject
 from storage import getUserStorage, userID
 from loading import showLoading
 
 async def _ask_new_project():
-    n = ui.notification("Creating project!", position='bottom-left', color='primary',
-                     spinner=True, timeout=100, close_button=True)
+    n = ui.notification("Creating project...", position='bottom-left', color='primary',
+                    spinner=True, timeout=100, close_button=True)
     try:
         p = await createEmtpyProject()
         n.dismiss()
@@ -17,11 +17,41 @@ async def _ask_new_project():
         navigate(f"/create/{slug}",True)
     except Exception as e:
         n.dismiss()
-        Notify("Cannot create project, error occured!", color="red")
+        Notify(str(e), type="negative")
 
-def proj(project: dict):
+async def _del_prject(id, d, updater):
+    async def __del_proj():
+        n = ui.notification("Deleting project...", position='bottom-left', color='red-200',
+                    spinner=True, timeout=100, close_button=True)
+        try:
+            p = await deleteProject(id)
+            n.dismiss()
+            if not p.success:
+                raise Exception(p.errors.get("other", ""))
+            Notify("Project deleted!", type="success")
+        except Exception as e:
+            n.dismiss()
+            Notify(str(e), type="negative")
+        finally:
+            d.close()
+            await updater()
+    d.clear()
+    with d:
+        with Card():
+            Label("Do you really want to delete this project?").classes("text-md font-semibold")
+            with RawRow():
+                Button("Yes", config=dict(icon='check'), on_click=__del_proj)
+                Button("No", config=dict(icon='close'), on_click=d.close)
+    d.open()
+
+def proj(project: dict, del_proj=lambda i:()):
     slug = project.get('slug')
-    Label(project.get("title", "Untitled").title()).classes("text-xl font-bold break-words break-all overflow-hidden")
+    with Label(project.get("title", "Untitled").title()).classes("text-xl font-bold break-words break-all overflow-hidden"):
+        with ui.context_menu():
+            ui.menu_item("Edit", lambda:(navigate(f"/create/{slug}",True) if slug else None)).classes("bg-primary font-bold text-md")
+            ui.menu_item("View", lambda:(navigate(f"/project/{slug}",True) if slug else None)).classes("bg-primary font-bold text-md")
+            ui.menu_item("Delete", lambda:del_proj(project.get('id'))).classes("bg-red-500 font-bold text-md")
+
     with RawRow().classes("w-full px-2 gap-1 items-end"):
         with RawRow().classes("w-fit font-bold items-end"):
             if project.get("status"):
@@ -33,9 +63,6 @@ def proj(project: dict):
         with RawRow().classes("w-fit font-bold items-end"):
             Icon("favorite", 'xs', 'red')
             Label(project.get("likes",0)).classes("text-md text-red")
-        AddSpace()
-        Icon("edit", 'sm').classes("p-1 bg-primary rounded-sm cursor-pointer text-sm").on('click', lambda:(navigate(f"/create/{slug}",True) if slug else None))
-        Icon("open_in_new", 'sm').classes("p-1 bg-primary rounded-sm cursor-pointer text-sm").on('click', (lambda:navigate(f"/project/{slug}",True) if slug else None))
 
 def sectionLabel(text):
     return Label(text).classes("w-full text-md font-semibold")
@@ -44,11 +71,14 @@ async def projects(area):
     __w = []
     page = Variable(1) # type: ignore
     per_page = Variable(50) # type: ignore
+    dialog = Dialog()
     async def ask():
         new.disable()
         await _ask_new_project()
         await updateProjects()
         new.enable()
+    async def del_proj(id):
+        await _del_prject(id,dialog, updateProjects)
     async def updateProjects(filters: dict | None = None):
         c.clear()
         filters = filters or {}
@@ -69,7 +99,7 @@ async def projects(area):
                         with RawCol().classes("w-full p-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2"):
                             for project in projects.data:
                                 with Card().classes("w-full p-4 gap-2 max-w-full break-words break-all overflow-hidden"):
-                                    proj(project)
+                                    proj(project, del_proj)
                     with RawRow().classes("w-full h-fit justify-center items-center gap-3"):
                         async def prev():
                             page.set(max(1, page.value - 1)), # type: ignore

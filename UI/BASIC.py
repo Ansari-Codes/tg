@@ -214,3 +214,13 @@ class logger(ui.html):
 
 def Logger():
     return logger()
+
+def confirm(statement="", on_yes=None, on_no=None):
+    d = Dialog().props("persistent")
+    with d:
+        with Card():
+            Label(statement).classes("text-md font-semibold")
+            with Row():
+                Button("Yes", config=dict(icon='check'), on_click=on_yes)
+                Button("No", config=dict(icon='close'), on_click=on_no or d.delete)
+    return d

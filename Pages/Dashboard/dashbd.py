@@ -48,7 +48,7 @@ async def dashbd(area):
                         Icon("public", "lg");AddSpace()
                         Label(pubs).classes("text-4xl font-extrabold")
         if latest.data:
-            with RawRow().classes("w-full h-full justify-between"):
+            with RawRow().classes("w-full h-full"):
                 with RawCol().classes("w-full sm:w-full md:w-[30%] gap-2 p-1"):
                     Label("Some latest projects...").classes("text-lg font-semibold italic")
                     for project in latest.data:
@@ -64,12 +64,60 @@ async def dashbd(area):
                                 Icon("open_in_new", 'sm'
                                     ).classes("p-1 bg-primary rounded-sm cursor-pointer text-sm"
                                     ).on('click', lambda _,s=project.get("slug"):(navigate(f"/project/{s}",True) if s else None))
-                with RawCol().classes("w-full md:max-w-[60%] md:w-[60%] p-1"):
-                    fig = Figure(Scatter(x=[p.get("title", "") for p in projectss.data], y=[p.get("likes", "") for p in projectss.data]))
-                    fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))
-                    fig_dict = fig.to_dict()
-                    fig_dict['config'] = {"displaylogo":False}
-                    ui.plotly(fig_dict).classes("w-full h-full")
+                x_data = [p.get("title", "").title() for p in projectss.data]
+                y_data = [p.get("likes", 0) for p in projectss.data]
+                fig = Figure(
+                    Scatter(
+                        x=x_data,
+                        y=y_data,
+                        mode='lines+markers',
+                        marker=dict(
+                            size=8,
+                            color='#5470C6',
+                            line=dict(width=1, color='white')
+                        ),
+                        line=dict(
+                            width=3,
+                            color='#5470C6'
+                        )
+                    )
+                )
+                max_y = max(y_data) if y_data else 1
+                fig.update_layout(
+                    title="Likes per Project",
+                    title_x=0.02,
+                    margin=dict(l=0, r=0, t=40, b=0),
+                    plot_bgcolor="rgba(0,0,0,0)",
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    font=dict(family="Inter, sans-serif", weight="bold", size=13, color="#2A2A2A"),
+                    xaxis=dict(
+                        showgrid=False,
+                        zeroline=False,
+                        showline=True,
+                        linewidth=1,
+                        linecolor="#D0D3DC",
+                    ),
+                    yaxis=dict(
+                        showgrid=True,
+                        gridcolor="#E5E7EF",
+                        zeroline=False,
+                        showline=True,
+                        linewidth=1,
+                        linecolor="#D0D3DC",
+                    ),
+                    yaxis_range=[0, max_y+1],
+                    hovermode="x unified",
+                    autosize=True,
+                )
+                fig_dict = fig.to_dict()
+                fig_dict['config'] = {
+                    "displayModeBar": False,
+                    "displaylogo": False,
+                }
+                ui.plotly(fig_dict).classes(
+                    "w-full sm:w-[60%] h-96 bg-white dark:bg-dark rounded-xl shadow-md p-4 mt-4 sm:ml-4"
+                )
     except Exception as e:
+        print(e)
         Label(f"Error Occured!").classes("text-2xl text-red p-2")
     loading.delete()
