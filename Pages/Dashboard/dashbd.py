@@ -73,12 +73,12 @@ async def dashbd(area):
                         mode='lines+markers',
                         marker=dict(
                             size=8,
-                            color='#5470C6',
+                            color="#2E8D36",
                             line=dict(width=1, color='white')
                         ),
                         line=dict(
                             width=3,
-                            color='#5470C6'
+                            color="#2E8D36"
                         )
                     )
                 )
@@ -115,7 +115,7 @@ async def dashbd(area):
                     "displaylogo": False,
                 }
                 ui.plotly(fig_dict).classes(
-                    "w-full sm:w-[60%] h-96 bg-white dark:bg-dark rounded-xl shadow-md p-4 mt-4 sm:ml-4"
+                    "w-full sm:w-[60%] h-96 bg-card-l dark:bg-card-d rounded-xl shadow-md p-4 mt-4 sm:ml-4"
                 )
     except Exception as e:
         print(e)

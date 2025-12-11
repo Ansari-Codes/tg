@@ -1,7 +1,16 @@
 from ENV import ui, THEME
 from typing import Callable, Literal
+from storage import getThemeStorage, updateThemeStorage
 
 def navigate(link:str,new_tab:bool=False):ui.navigate.to(link,new_tab)
+def INIT_THEME():
+    updateThemeStorage({},True)
+    if getThemeStorage():
+        ui.colors(**getThemeStorage())
+    else:
+        ui.colors(**THEME)
+        updateThemeStorage(THEME.copy())
+    return getThemeStorage()
 
 def Label(text="", model=None, model_configs=None):
     lbl = ui.label(text)
@@ -19,7 +28,7 @@ def RawRow(): return ui.element().classes("flex flex-row")
 def Center(): return ui.element( ).classes("flex justify-center items-center" )
 def Footer(config: dict|None = None): return ui.footer(**(config or {}))
 def Card(align: Literal['start', 'end', 'center', 'baseline', 'stretch']|None = None ):
-    return ui.card(align_items=align)
+    return ui.card(align_items=align).classes("bg-card-l dark:bg-card-d")
 
 def Link(
         text: str = "",
@@ -53,6 +62,7 @@ def SoftBtn(
     tc = text_clr or "white"
     if c not in colors+['transparent']: c = f"[{c}]"
     if tc not in colors+['transparent']: tc = f"[{tc}]"
+    if c == "btn": c += "btn-l dark:bg-btn-d"
     icon_config = icon_config or {}
     base_classes = (
         f"flex items-center{' justify-'+justify if justify else ''} gap-0 text-{text_align or 'center'} "
@@ -115,7 +125,7 @@ def Button(
         config: dict|None = None
     ):
     if not config: config = {}
-    return ui.button(text=text, on_click=on_click, **config).props("unelevated push")
+    return ui.button(text=text, on_click=on_click, **config).props("unelevated push").classes("bg-btn-l dark:bg-btn-d")
 
 def TextArea(
         content: str = "",

@@ -100,25 +100,22 @@ async def projects(area):
                             for project in projects.data:
                                 with Card().classes("w-full p-4 gap-2 max-w-full break-words break-all overflow-hidden"):
                                     proj(project, del_proj)
-                    with RawRow().classes("w-full h-fit justify-center items-center gap-3"):
+                    area.props("relative")
+                    with RawRow().classes(
+                        "absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-primary gap-3 p-2 rounded-full shadow-xl items-center justify-center"
+                    ):
                         async def prev():
-                            page.set(max(1, page.value - 1)), # type: ignore
+                            page.set(max(1, page.value - 1))  # type: ignore
                             await updateProjects(filters)
-                        prev_btn = Button(
-                            "Prev",
-                            on_click=prev
-                        ).props("outline").classes("min-w-[80px]")
-                        if page.value <= 1: # type: ignore
+                        prev_btn = Button("◀", on_click=prev).props("rounded")
+                        if page.value <= 1:  # type: ignore
                             prev_btn.disable()
-                        Label(f"Page {page.value}").classes("text-lg font-semibold")
+                        Label(f"Page {page.value}").classes("text-sm font-semibold text-white w-fit")
                         async def nex():
-                            page.set(page.value + 1), # type: ignore
+                            page.set(page.value + 1)  # type: ignore
                             await updateProjects(filters)
-                        next_btn = Button(
-                            "Next",
-                            on_click=nex
-                        ).props("outline").classes("min-w-[80px]")
-                        if len(projects.data) < pg: # type: ignore
+                        next_btn = Button("▶", on_click=nex).props("rounded")
+                        if len(projects.data) < pg:  # type: ignore
                             next_btn.disable()
             else:
                 Label("Unable to fetch projects!").classes("text-xl font-bold text-red-500")
@@ -139,7 +136,7 @@ async def projects(area):
         ref = Button("Refresh", updateProjects, {"icon":"refresh"})
         with RawRow().classes("w-fit h-fit gap-1 justify-center items-center"):
             Label("Per Page: ").classes("text-xl font-semibold")
-            ppg = Input(value=per_page.value, type='number', min=10, max=100, step=1)
+            ppg = Select(value=per_page.value, options=[10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
         async def pppg(p):
             per_page.value = int(p.value) if p.value and p.value > 10 else 10
             page.value = 1

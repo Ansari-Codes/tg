@@ -12,7 +12,17 @@ NAME = "TurtleGraphics"
 ICON = "🐢"
 
 THEME = {
-    "primary": "",
-    "secondary": "",
-    "accent": "",
+    "primary": "#48815A",  
+    "secondary": "#46925E",
+    "accent": "#DFF6DD",   
+    "dark": "#293126",     
+    "positive": "#107C10", 
+    "negative": "#A80000", 
+    "info": "#017CBA",     
+    "warning": "#FFB900",  
+    "debug": "#6C757D",    
+    "btn-l": "#3BA75A",    
+    "btn-d": "#225532",    
+    "card-l": "#F3FAF3",   
+    "card-d": "#193519",   
 }

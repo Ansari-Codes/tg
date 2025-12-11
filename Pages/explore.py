@@ -25,7 +25,7 @@ def proj(project: dict):
             Label(project.get("likes",0)).classes("text-md text-red")
         with RawRow().classes("font-bold items-end"):
             Icon("person", "xs", "primary")
-            Label(project.get("owner_name", "Anonymous")).classes("text-priamry text-md")
+            Label(project.get("owner_name", "Anonymous").title()).classes("text-priamry text-md")
 
 def sectionLabel(text):
     return Label(text).classes("w-full text-md font-semibold")
@@ -48,32 +48,26 @@ async def render():
         c.clear()
         with c:
             if projects.success:
-                with RawCol().classes("w-full h-full"):
-                    with RawCol().classes("w-full h-fit max-h-[75vh] overflow-y-auto"):
-                        with RawCol().classes("w-full p-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2"):
-                            for project in projects.data:
-                                with Card().classes("w-full p-4 gap-2 max-w-full break-words break-all overflow-hidden"):
-                                    proj(project)
-                    with RawRow().classes("w-full h-fit justify-center items-center gap-3"):
-                        async def prev():
-                            page.set(max(1, page.value - 1)), # type: ignore
-                            await updateProjects(filters)
-                        prev_btn = Button(
-                            "Prev",
-                            on_click=prev
-                        ).props("outline").classes("min-w-[80px]")
-                        if page.value <= 1: # type: ignore
-                            prev_btn.disable()
-                        Label(f"Page {page.value}").classes("text-lg font-semibold")
-                        async def nex():
-                            page.set(page.value + 1), # type: ignore
-                            await updateProjects(filters)
-                        next_btn = Button(
-                            "Next",
-                            on_click=nex
-                        ).props("outline").classes("min-w-[80px]")
-                        if len(projects.data) < pg: # type: ignore
-                            next_btn.disable()
+                with RawCol().classes("w-full p-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2"):
+                    for project in projects.data:
+                        with Card().classes("w-full p-4 gap-2 max-w-full break-words break-all overflow-hidden"):
+                            proj(project)
+                with RawRow().classes(
+                    "fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-primary gap-3 p-2 rounded-full shadow-xl items-center justify-center"
+                ):
+                    async def prev():
+                        page.set(max(1, page.value - 1))  # type: ignore
+                        await updateProjects(filters)
+                    prev_btn = Button("◀", on_click=prev).props("rounded")
+                    if page.value <= 1:  # type: ignore
+                        prev_btn.disable()
+                    Label(f"Page {page.value}").classes("text-sm font-semibold text-white w-fit")
+                    async def nex():
+                        page.set(page.value + 1)  # type: ignore
+                        await updateProjects(filters)
+                    next_btn = Button("▶", on_click=nex).props("rounded")
+                    if len(projects.data) < pg:  # type: ignore
+                        next_btn.disable()
             else:
                 Label("Unable to fetch projects!").classes("text-xl font-bold text-red-500")
         for _ in __w: _.set_enabled(True)
@@ -93,7 +87,7 @@ async def render():
             Button(config=dict(icon="search"), on_click=lambda s=sq:search(s)).bind_enabled_from(sq, "value", backward=lambda x:x.strip()).props("unelevated", remove="push").classes("rounded-l-0")
         with RawRow().classes("w-fit h-fit gap-1 justify-center items-center"):
             Label("Per Page: ").classes("text-xl font-semibold")
-            ppg = Input(value=per_page.value, type='number', min=10, max=100, step=1)
+            ppg = Select(value=per_page.value, options=[10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
         async def pppg(p):
             per_page.value = int(p.value) if p.value and p.value > 10 else 10
             page.value = 1
