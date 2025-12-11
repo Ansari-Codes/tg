@@ -1,5 +1,5 @@
 from UI import Label, Header, Input, Button, TextArea, Dialog, SoftBtn, Col, Row, AddSpace, Html, Logger, ui
-from UI.BASIC import Card, Notify, RawRow
+from UI.BASIC import Card, Notify, RawCol, RawRow
 from database.project import loadProject, updateProject, unique
 from js import ZOOM_PAN
 from storage import updateTabStorage as uts, getTabStorage as gts
@@ -82,11 +82,13 @@ async def rename(d, title_model):
         Notify("Renamed!", color="success")
     with d:
         with Card():
-            rinp = Input().classes("w-full")
-            w.append(rinp)
-            with RawRow().classes("w-full p-2 gap-2 items-center justify-between"):
-                w.append(Button("Cancel", d.close, config=dict(color="red")))
-                w.append(Button("Rename", _rname, config=dict(color="primary")))
+            with RawCol().classes("w-full h-full gap-1"):
+                Label("New Title here...").classes("w-full text-md font-semibold")
+                rinp = Input().classes("w-full")
+                w.append(rinp)
+                with RawRow().classes("w-full gap-2 items-center justify-between"):
+                    w.append(Button("Cancel", d.close, config=dict(color="red")))
+                    w.append(Button("Rename", _rname, config=dict(color="primary")))
     d.open()
 
 async def publish(d,ss,b):
@@ -111,11 +113,14 @@ async def publish(d,ss,b):
         await save()
     with d:
         with Card():
-            desc = TextArea(autogrow=True, max_h="400px").classes("w-full")
-            w.append(desc)
-            with RawRow().classes("w-full p-2 gap-2 items-center justify-between"):
-                w.append(Button("Cancel", d.close, config=dict(color="red")))
-                w.append(Button("Publish", _publish, config=dict(color="primary")))
+            with RawCol().classes("w-full h-full gap-1"):
+                Label("Description").classes("w-full text-md font-semibold")
+                with RawRow().classes("w-full max-h-[400px]"):
+                    desc = TextArea(autogrow=True).classes("w-full")
+                w.append(desc)
+                with RawRow().classes("w-full gap-2 items-center justify-between"):
+                    w.append(Button("Cancel", d.close, config=dict(color="red")))
+                    w.append(Button("Publish", _publish, config=dict(color="primary")))
     d.open()
 
 async def revertToDraft(d, ss, b):
@@ -194,6 +199,10 @@ async def render(slug):
     await context.connected()
     projec = await loadProject(slug)
     project:dict = projec.data
+    if not projec.success:
+        c.delete()
+        Label("Cannot load project!").classes("text-xl font-bold text-red-500")
+        return
     project['status'] = project.get("status", "0").__str__()
     uts(project)
     isSmallScreen = int(await ui.run_javascript("window.innerWidth")) < 500

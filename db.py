@@ -105,28 +105,3 @@ async def DROP():
 
 # import asyncio
 # asyncio.run(DROP())
-import asyncio
-
-async def test_file_functions():
-    filename = "test.txt"
-    content = "Hello world!"
-
-    # 1. POST (create/update file)
-    msg = await POST_FILE(filename, content)
-    print("POST_FILE:", msg)
-
-    # 2. GET (read file)
-    result = await GET_FILE(filename)
-    print("GET_FILE:", result)
-
-    # 3. DELETE (remove file)
-    msg = await DELETE_FILE(filename)
-    print("DELETE_FILE:", msg)
-
-    # 4. GET after delete → should raise Exception
-    try:
-        await GET_FILE(filename)
-    except Exception as e:
-        print("GET_FILE after delete:", e)
-
-asyncio.run(test_file_functions())
