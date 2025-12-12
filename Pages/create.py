@@ -52,14 +52,6 @@ def exportCanvas():
     }}
     """)
 
-async def save():
-    project = gts()
-    n = ui.notification("Saving", position="bottom-left", color='primary', spinner=True, timeout=100)
-    await updateProject(project)
-    n.dismiss()
-    uts(project)
-    Notify("Changes Saved!", color="success")
-
 async def rename(d, title_model):
     project = gts()
     d.clear()
@@ -91,7 +83,7 @@ async def rename(d, title_model):
                     w.append(Button("Rename", _rname, config=dict(color="primary")))
     d.open()
 
-async def publish(d,ss,b):
+async def publish(d,ss,b,saver):
     project = gts()
     d.clear()
     w = []
@@ -110,7 +102,7 @@ async def publish(d,ss,b):
         x = lambda _=None,d=d,s=ss:revertToDraft(d,s,b)
         b.set_text("Revert")
         b.on_click(x)
-        await save()
+        await saver({'description':value, 'status':1})
     with d:
         with Card():
             with RawCol().classes("w-full h-full gap-1"):
@@ -192,6 +184,7 @@ async def createEditMenu():
             Button("Copy Canvas", copyCanvas).classes("w-full")
             Button("Clear Canvas", clearCanvas).classes("w-full")
     return b
+
 async def render(slug):
     c = showLoading("Editor")
     context = ui.context.client
@@ -207,7 +200,15 @@ async def render(slug):
     uts(project)
     isSmallScreen = int(await ui.run_javascript("window.innerWidth")) < 500
     code = Variable()
-
+    jscode = Variable()
+    async def save(extra=None):
+        extra = extra or {}
+        project = {"pycode": code.value.strip(), "jscode": jscode.value.strip(), **extra}
+        n = ui.notification("Saving", position="bottom-left", color='primary', spinner=True, timeout=100)
+        await updateProject(project)
+        n.dismiss()
+        uts(project)
+        Notify("Changes Saved!", color="success")
     def print_(*args, end="\n", classes="", props="", style=""):
         content = ' '.join([str(i) for i in args])
         log.print(content, classes, props, style)
@@ -232,26 +233,26 @@ async def render(slug):
         await asyncio.sleep(0.1)
         js = 'console.log("Starting turtle drawing...");\n' + js
         js += '\nconsole.log("Turtle drawing completed");'
-        wrapped_js = f"""
-        window.is_running = false;
-        (async function() {{
-            const canvas = document.getElementById('t-canvas');
-            if (!canvas) {{
+        wrapped_js = """
+        (async function({canvas}) {
+            const canvas = document.getElementById(canvas);
+            if (!canvas) {
                 console.error('Canvas not found');
                 return;
-            }}
-            async function delay(ms){{return new Promise(r=>setTimeout(r,ms));}}
+            }
+            async function delay(ms){return new Promise(r=>setTimeout(r,ms));}
             window.is_running = true;
             let cw = () => canvas.width;
             let ch = () => canvas.height;
             let cx = () => cw() / 2;
             let cy = () => ch() / 2;
             {js}
-            window.is_running = false;
-        }})();
+        })();
         """
+        wrapped_js = wrapped_js.format(js=wrapped_js, canvas="t-canvas")
         uts({"jscode": wrapped_js, "pycode": code.value})
-        ui.run_javascript(wrapped_js)
+        jscode.value = wrapped_js
+        ui.run_javascript("window.is_running = false;"+wrapped_js+"window.is_running = false;")
         if out: print_(out)
         if err: print_(err)
         if e: print_(e)

@@ -7,11 +7,9 @@ from loading import showLoading
 
 def proj(project: dict):
     slug = project.get('slug')
-    with Label(project.get("title", "Untitled").title()).classes("text-xl font-bold break-words break-all overflow-hidden"):
-        with ui.context_menu():
-            ui.menu_item("Edit", lambda:(navigate(f"/create/{slug}",True) if slug else None)).classes("bg-primary font-bold text-md")
-            ui.menu_item("View", lambda:(navigate(f"/project/{slug}",True) if slug else None)).classes("bg-primary font-bold text-md")
-
+    with RawRow().classes("relative w-full grid grid-cols-6 gap-2", remove="flex flex-row"):
+        Label(project.get("title", "Untitled").title()).classes("text-xl font-bold break-words break-all overflow-hidden col-span-5")
+        Button(config=dict(icon="open_in_new"), on_click=lambda:navigate(f"/project/{slug}")).props("dense", remove="push").classes("px-1.5 h-fit")
     with RawRow().classes("w-full px-2 gap-1 items-end"):
         with RawRow().classes("w-fit font-bold items-end"):
             if project.get("status"):
