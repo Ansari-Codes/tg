@@ -83,7 +83,7 @@ async def rename(d, title_model):
                     w.append(Button("Rename", _rname, config=dict(color="primary")))
     d.open()
 
-async def publish(d,ss,b,saver):
+async def publish(d,ss,b):
     project = gts()
     d.clear()
     w = []
@@ -102,7 +102,6 @@ async def publish(d,ss,b,saver):
         x = lambda _=None,d=d,s=ss:revertToDraft(d,s,b)
         b.set_text("Revert")
         b.on_click(x)
-        await saver({'description':value, 'status':1})
     with d:
         with Card():
             with RawCol().classes("w-full h-full gap-1"):
@@ -132,7 +131,6 @@ async def revertToDraft(d, ss, b):
         x = lambda _=None,d=d,s=ss:publish(d,s,b)
         b.set_text("Publish")
         b.on_click(x)
-        await save()
     with d:
         with Card():
             Label("Are you sure to revert your public project to draft?")
@@ -161,11 +159,11 @@ if (canvas) {
 }
         """)
 
-async def createFileMenu(d,tm,ss):
+async def createFileMenu(d,tm,ss,saver):
     with Button("File") as bbbb:
         project = gts()
         with ui.menu().classes("flex flex-col gap-1 p-2").props("auto-close"):
-            Button("Save", save).classes("w-full")
+            Button("Save", saver).classes("w-full")
             Button("Rename", lambda _=None,d=d,tm=tm:rename(d, tm)).classes("w-full")
             Button("Export Canvas", exportCanvas).classes("w-full")
             b = Button().classes("w-full")
@@ -262,14 +260,14 @@ async def render(slug):
     ss = Html(sss(project.get("status"))).classes("truncate text-lg h-full font-bold")
     with Header().classes("flex flex-row items-center") as header:
         if not isSmallScreen:
-            await createFileMenu(dialog, tm, ss)
+            await createFileMenu(dialog, tm, ss,save)
             await createEditMenu()
             Button("Run", run)
             Button("Stop", lambda: ui.run_javascript("window.is_running = false;"))
         else:
             with Button(config=dict(icon="menu")):
                 with ui.menu():
-                    (await createFileMenu(dialog, tm, ss)).classes("w-full")
+                    (await createFileMenu(dialog, tm, ss,save)).classes("w-full")
                     (await createEditMenu()).classes("w-full")
                     Button("Run", run).classes("w-full")
                     Button("Stop", lambda: ui.run_javascript("window.is_running = false;")).classes("w-full")
