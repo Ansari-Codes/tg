@@ -155,18 +155,3 @@ class T:
     def static(self):
         self._animated = False
         return self.isAnimated()
-
-'''
-t = Turtle()
-t2 = Turtle()
-t.clear()
-t2.clear()
-t2.up()
-t2.forward(110)
-t2.down()
-for i in range(4):
-    t.forward(100)
-    t.left(90)
-    t2.forward(100)
-    t2.left(90)
-'''
