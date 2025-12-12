@@ -5,14 +5,14 @@ from database.brows import getPaginated
 from storage import getUserStorage, userID
 from loading import showLoading
 
-def proj(project: dict):
+def proj(project: dict, js=None):
     slug = project.get('slug')
     with RawRow().classes("relative w-full grid grid-cols-6 gap-2", remove="flex flex-row"):
         Label(project.get("title", "Untitled").title()).classes("text-xl font-bold break-words break-all overflow-hidden col-span-5")
         Button(config=dict(icon="open_in_new"), on_click=lambda:navigate(f"/project/{slug}")).props("dense", remove="push").classes("px-1.5 h-fit")
     with RawRow().classes("w-full aspect-square"):
         Html(f'<canvas id="t-{slug}-canvas" class="w-full h-full"></canvas>')
-        ui.run_javascript(project.get("jscode","").replace("{{canvas}}", f"t-{slug}-canvas", 1))
+        js.append(project.get("jscode","").replace("{{canvas}}", f"t-{slug}-canvas", 1)) #type:ignore
     with RawRow().classes("w-full px-2 gap-1 items-end"):
         with RawRow().classes("w-fit font-bold items-end"):
             if project.get("status"):
@@ -34,7 +34,8 @@ def sectionLabel(text):
 async def render():
     __w = []
     page = Variable(1) # type: ignore
-    per_page = Variable(50) # type: ignore
+    per_page = Variable(10) # type: ignore
+    js = []
     async def updateProjects(filters: dict | None = None):
         c.clear()
         filters = filters or {}
@@ -47,12 +48,13 @@ async def render():
             page=page.value, # type: ignore
         )
         c.clear()
+        js.clear()
         with c:
             if projects.success:
                 with RawCol().classes("w-full p-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2"):
                     for project in projects.data:
                         with Card().classes("w-full p-4 gap-2 max-w-full break-words break-all overflow-hidden"):
-                            proj(project)
+                            proj(project, js)
                 with RawRow().classes(
                     "fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-primary gap-3 p-2 rounded-full shadow-xl items-center justify-center"
                 ):
@@ -73,6 +75,7 @@ async def render():
                 Label("Unable to fetch projects!").classes("text-xl font-bold text-red-500")
         for _ in __w: _.set_enabled(True)
     d = Dialog()
+    s = showLoading("Explorer")
     with ui.header().classes("flex items-center bg-secondary"):
         Label("Explore").classes("text-xl font-bold")
         AddSpace()
@@ -96,3 +99,6 @@ async def render():
         ppg.on_value_change(pppg)
     c = RawCol().classes("w-full h-fit max-h-[78vh] mt-2 justify-center items-center")
     await updateProjects()
+    for i in js:
+        ui.run_javascript(i)
+    s.delete()
