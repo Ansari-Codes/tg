@@ -9,6 +9,7 @@ class Screen:
         self._dpi = 1
         self._js_actions = []
         self._delay = 0
+        self._animated = True
     def setDelay(self, delay):
         if delay < 0:
             raise ValueError("Delay must be a positive number!")
@@ -50,7 +51,6 @@ class Screen:
     def clear(self):
         self._js_actions.append(
             "canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);"
-            f"if (!window.is_running) return;"
         )
     def grid(self, x_spacing=25, y_spacing=25, color="#ddd"):
         """optional: draw a background grid"""
@@ -84,6 +84,7 @@ class T:
         self._name = "turtle_" + randomstr()
         self._ctx = f"{self._name}_ctx"
         self._js_actions =  []
+        self._animated = True
 
     # ----------------- JS Storage -----------------
     def getJsActions(self): return self._js_actions
@@ -95,7 +96,7 @@ class T:
         if self._pen:
             self._js_actions.append(
                 f"if (!window.is_running) return;"
-                f"await delay({self._delay}); "
+                f"{f'await delay({self._delay});'*self.isAnimated()} "
                 f"{self._ctx}.beginPath(); "
                 f"{self._ctx}.moveTo(cx() + {self._x}, cy() + {self._y}); "
                 f"{self._ctx}.lineTo(cx() + {new_x}, cy() + {new_y}); "
@@ -113,7 +114,7 @@ class T:
         if self._pen:
             self._js_actions.append(
                 f"if (!window.is_running) return;"
-                f"await delay({self._delay}); "
+                f"{'await delay({self._delay});'*self.isAnimated()} "
                 f"{self._ctx}.beginPath(); "
                 f"{self._ctx}.moveTo(cx() + {self._x}, cy() + {self._y}); "
                 f"{self._ctx}.lineTo(cx() + {x}, cy() + {y}); "
@@ -144,6 +145,16 @@ class T:
     def getLineWidth(self): return self._width
     def clear(self): self._js_actions.append(f"{self._ctx}.clearRect(0, 0, cw(), ch());")
     def getPosition(self): return (self._x, self._y)
+    
+    # Animation related
+    def isAnimated(self):
+        return self._animated
+    def animated(self):
+        self._animated = True
+        return self.isAnimated()
+    def static(self):
+        self._animated = False
+        return self.isAnimated()
 
 '''
 t = Turtle()

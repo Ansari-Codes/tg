@@ -13,9 +13,9 @@ from loading import showLoading
 
 SAFE_MODULES = {
     'math': math, 'cmath': cmath, 'random': random, 'statistics': statistics,
-    'numpy': numpy, 'asyncio': asyncio, 'decimal': decimal, 'fractions': fractions,
+    'numpy': numpy, 'decimal': decimal, 'fractions': fractions,
     'itertools': itertools, 'functools': functools, 'collections': collections,
-    'colorsys': colorsys, 'time': time
+    'colorsys': colorsys
 }
 
 def safe_import(name, *args, **kwargs):
@@ -36,7 +36,8 @@ itsglobal = {
         'slice': slice, 'dir': dir, 'True': True, 'False': False, 'None': None,
         'Exception': Exception, 'ValueError': ValueError, 'TypeError': TypeError,
         'ZeroDivisionError': ZeroDivisionError, 'now_sec': time.time,
-        'time_sec': time.perf_counter, 'strftime': time.strftime,
+        'time_sec': time.perf_counter, 'strftime': time.strftime, 
+        'SyntaxError': SyntaxError,
     },
     'divmod': divmod, 'pow': pow, 'complex': complex
 }
@@ -201,11 +202,11 @@ async def render(slug):
     jscode = Variable()
     async def save(extra=None):
         extra = extra or {}
-        project = {"pycode": code.value.strip(), "jscode": jscode.value.strip(), **extra}
+        pjt = {**project, "pycode": code.value.strip(), "jscode": jscode.value.strip(), **extra}
         n = ui.notification("Saving", position="bottom-left", color='primary', spinner=True, timeout=100)
-        await updateProject(project)
+        await updateProject(pjt)
         n.dismiss()
-        uts(project)
+        uts(pjt)
         Notify("Changes Saved!", color="success")
     def print_(*args, end="\n", classes="", props="", style=""):
         content = ' '.join([str(i) for i in args])
@@ -224,16 +225,18 @@ async def render(slug):
                 shared.append(f"const {self._ctx} = canvas.getContext('2d');{self._ctx}.setTransform(1, 0, 0, 1, 0, 0);")
         screen = Screen()
         screen._js_actions = shared
-        safe_globals = {**itsglobal, "Screen":screen, "Turtle":Turtle}
+        def sleep__(ms: int):
+            shared.append(f"await delay({ms});")
+        safe_globals = {**itsglobal, "Screen":screen, "Turtle":Turtle, "sleep": sleep__}
         out, err, e = await execute(code.value, safe_globals)
         js = ''
         for l in shared:js += '\n' + l.strip()
         await asyncio.sleep(0.1)
         js = 'console.log("Starting turtle drawing...");\n' + js
         js += '\nconsole.log("Turtle drawing completed");'
-        wrapped_js = """
-        (async function({canvas}) {
-            const canvas = document.getElementById(canvas);
+        js_ = """
+        (async function() {
+            const canvas = document.getElementById("{{canvas}}");
             if (!canvas) {
                 console.error('Canvas not found');
                 return;
@@ -244,13 +247,12 @@ async def render(slug):
             let ch = () => canvas.height;
             let cx = () => cw() / 2;
             let cy = () => ch() / 2;
-            {js}
+            {{js}}
         })();
         """
-        wrapped_js = wrapped_js.format(js=wrapped_js, canvas="t-canvas")
-        uts({"jscode": wrapped_js, "pycode": code.value})
-        jscode.value = wrapped_js
-        ui.run_javascript("window.is_running = false;"+wrapped_js+"window.is_running = false;")
+        wrapped_js = js_.replace("{{canvas}}", "t-canvas", 1).replace("{{js}}", js, 1)
+        jscode.value = js_.replace("{{js}}", js, 1)
+        ui.run_javascript("window.is_running = false;" + wrapped_js)
         if out: print_(out)
         if err: print_(err)
         if e: print_(e)
@@ -300,5 +302,5 @@ async def render(slug):
             </div>
             """)
             ZOOM_PAN()
-    ui.run_javascript(project.get("jscode",""))
+    ui.run_javascript(project.get("jscode","").replace("{{canvas}}", "t-canvas", 1))
     c.delete()

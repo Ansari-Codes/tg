@@ -9,7 +9,7 @@ async def render(slug):
     project = await loadProject(slug)
     data = project.data
     async def run():
-        ui.run_javascript(data.get("jscode",""))
+        ui.run_javascript(data.get("jscode","").format(canvas="t-canvas"))
     uts = updateUserStorage
     gts = getUserStorage
     if project.success:
