@@ -15,7 +15,13 @@ class Screen:
             raise ValueError("Delay must be a positive number!")
         self._delay = delay
         return delay
-    def setSize(self, width, height):
+    def setSize(self, width, height=0):
+        if not (width or isinstance(width, (int, float)) or width > 10):
+            raise ValueError("Width must be a number greater than 10")
+        if not height:
+            height = width
+        if not (height or isinstance(height, (int, float)) or height > 10):
+            raise ValueError("Height must be a number greater than 10")
         self._width = width
         self._height = height
         self._js_actions.append(
@@ -31,6 +37,8 @@ class Screen:
         )
         return color
     def setDpi(self, dpi):
+        if not (dpi or isinstance(dpi, (int, float)) or dpi > 10):
+            raise ValueError("DPI must be a number greater than 10")
         self._dpi = dpi
         self._js_actions.append(
             f"if (!window.is_running) return;"
