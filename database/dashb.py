@@ -45,7 +45,7 @@ async def countProjects(item, by='owner'):
 
 async def getLatestProjects(owner, count=5):
     res = Response()
-    query = f"SELECT * FROM {PROJECTS} WHERE owner = {owner} ORDER BY created_at DESC LIMIT {count};"
+    query = f"SELECT * FROM {PROJECTS} WHERE owner = {owner} ORDER BY updated_at DESC LIMIT {count};"
     try:
         projects = await RUN_SQL(query, to_fetch=True)
     except Exception as e:
