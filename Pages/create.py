@@ -294,13 +294,12 @@ async def render(slug):
                     log = Logger().classes("bg-blue-100 dark:bg-primary w-full h-full")
         with s.after:
             Html("""
-            <div id="canvas-wrapper" 
-                class="bg-gray-400 dark:bg-gray-800"
-                style="width:100%; height:100%; overflow:hidden; position:relative;">
-                <canvas id="t-canvas" width="1200" height="800"
-                        style="transform-origin: 0 0; background:white;"></canvas>
-            </div>
-            """)
+<div id="canvas-wrapper" class="w-full h-full overflow-hidden bg-gray-200">
+    <canvas id="t-canvas" 
+            style="transform-origin: 0 0; background:white;">
+    </canvas>
+</div>
+            """).classes("w-full h-full overflow-hidden")
             ZOOM_PAN()
     ui.run_javascript(project.get("jscode","").replace("{{canvas}}", "t-canvas", 1))
     c.delete()

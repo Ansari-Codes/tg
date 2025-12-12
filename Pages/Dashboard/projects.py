@@ -1,4 +1,4 @@
-from UI import Label, Input, Button, Icon, RawCol, RawRow, Card, SoftBtn, Choice, AddSpace, Header, confirm, Dialog, navigate, Select, ui, Notify
+from UI import Label, Input, Button, Icon, RawCol, RawRow, Card, SoftBtn, Html, Choice, AddSpace, Header, confirm, Dialog, navigate, Select, ui, Notify
 from ENV import NAME, ICON
 from models import Variable
 from database.project import createEmtpyProject, getAllProjects, deleteProject
@@ -51,7 +51,9 @@ def proj(project: dict, del_proj=lambda i:()):
             ui.menu_item("Edit", lambda:(navigate(f"/create/{slug}",True) if slug else None)).classes("bg-primary font-bold text-md")
             ui.menu_item("View", lambda:(navigate(f"/project/{slug}",True) if slug else None)).classes("bg-primary font-bold text-md")
             ui.menu_item("Delete", lambda:del_proj(project.get('id'))).classes("bg-red-500 font-bold text-md")
-
+    with RawRow().classes("w-full aspect-square"):
+        Html(f'<canvas id="t-{slug}-canvas" class="w-full h-full"></canvas>')
+        ui.run_javascript(project.get("jscode","").replace("{{canvas}}", f"t-{slug}-canvas", 1))
     with RawRow().classes("w-full px-2 gap-1 items-end"):
         with RawRow().classes("w-fit font-bold items-end"):
             if project.get("status"):
