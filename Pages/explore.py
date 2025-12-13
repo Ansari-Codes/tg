@@ -71,6 +71,7 @@ async def render():
             else:
                 Label("Unable to fetch projects!").classes("text-xl font-bold text-red-500")
         for _ in __w: _.set_enabled(True)
+        for i in js:ui.run_javascript(i)
     d = Dialog()
     with ui.header().classes("flex items-center bg-secondary"):
         Label("Explore").classes("text-2xl font-bold")
@@ -84,7 +85,7 @@ async def render():
                 "w-[200px] "
                 "hover:w-[250px] ",
             ).props("input-class='rounded-r-0'")
-            Button(config=dict(icon="search"), on_click=lambda s=sq:search(s)).bind_enabled_from(sq, "value", backward=lambda x:x.strip()).props("unelevated", remove="push").classes("rounded-l-0")
+            Button(config=dict(icon="search"), on_click=lambda s=sq:search(s)).props("unelevated", remove="push").classes("rounded-l-0")
         with RawRow().classes("w-fit h-fit gap-1 justify-center items-center"):
             Label("Per Page: ").classes("text-xl font-semibold")
             ppg = Select(value=per_page.value, options=[10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
@@ -95,5 +96,3 @@ async def render():
         ppg.on_value_change(pppg)
     c = RawCol().classes("w-full mt-2 justify-center items-center")
     await updateProjects()
-    for i in js:
-        ui.run_javascript(i)

@@ -234,8 +234,6 @@ async def render(slug):
         js = ''
         for l in shared:js += '\n' + l.strip()
         await asyncio.sleep(0.1)
-        js = 'console.log("Starting turtle drawing...");\n' + js
-        js += '\nconsole.log("Turtle drawing completed");'
         js_ = """
         (async function() {
             const canvas = document.getElementById("{{canvas}}");
