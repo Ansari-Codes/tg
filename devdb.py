@@ -1,23 +1,25 @@
 import sqlite3 as sq
 import aiosqlite as asq
 
-database = "database.sqlite"
-async def INIT_DB():
-    con = await asq.connect(database)
-    cur = await con.cursor()
-    cur.row_factory = sq.Row #type:ignore
-    return con, cur
+DATABASE = "database.sqlite"
 
-async def SQL(query="", to_fetch=False):
-    con, cur = await INIT_DB()
+async def INIT_DB():
+    con = await asq.connect(DATABASE)
+    con.row_factory = sq.Row
+    return con
+
+async def SQL(query, params=(), fetch=False):
+    con = await INIT_DB()
     try:
-        res = await cur.execute(query)
-        if to_fetch:
-            res = await res.fetchall()
-            return [dict(row) for row in res]
+        async with con.execute(query, params) as cur:
+            if fetch:
+                rows = await cur.fetchall()
+                return [dict(row) for row in rows]
+            else:
+                await con.commit()
+                return True
     except Exception as e:
-        print(e)
-        return [{}]
+        print("SQL Error:", e)
+        return None
     finally:
-        await cur.close()
         await con.close()
