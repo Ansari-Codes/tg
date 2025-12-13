@@ -15,6 +15,8 @@ q = 0
 USERS = "users"
 PROJECTS = "projects"
 COMMENTS = "comments"
+LIKEDS = "likeds"
+VIEWEDS = "vieweds"
 name = "turtlegraphics"
 async def RUN_SQL(query: str, to_fetch: bool = False):
     global q
@@ -96,10 +98,13 @@ async def CLEAR():
 
 async def DROP():
     print("cli.py: Dropping tables...")
-    DROP_COMMENTS = "DROP TABLE IF EXISTS comments;"
-    DROP_PROJECTS = "DROP TABLE IF EXISTS projects;"
-    DROP_USERS = "DROP TABLE IF EXISTS users;"
-    drop = DROP_COMMENTS + DROP_PROJECTS + DROP_USERS
+    drop = '\n'.join([
+        "DROP TABLE IF EXISTS comments;",
+        "DROP TABLE IF EXISTS projects;",
+        "DROP TABLE IF EXISTS users;",
+        "DROP TABLE IF EXISTS likeds;",
+        "DROP TABLE IF EXISTS vieweds;"
+    ])
     await RUN_SQL(drop)
     print("cli.py: All tables dropped successfully!")
 

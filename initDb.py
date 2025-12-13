@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS projects (
     pycode TEXT,
     jscode TEXT,
     likes INTEGER DEFAULT 0,
+    views INTEGER DEFAULT 0,
     status INTEGER DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -43,6 +44,30 @@ CREATE TABLE IF NOT EXISTS comments (
 );
 """
 
+CREATE_LIKEDS_TABLE = """
+CREATE TABLE IF NOT EXISTS likeds (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    project_id INTEGER NOT NULL,
+    liker_id INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(project_id) REFERENCES projects(id),
+    FOREIGN KEY(liker_id) REFERENCES users(id)
+);
+"""
+
+CREATE_VIEWEDS_TABLE = """
+CREATE TABLE IF NOT EXISTS vieweds (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    project_id INTEGER NOT NULL,
+    viewer_id INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(project_id) REFERENCES projects(id),
+    FOREIGN KEY(viewer_id) REFERENCES users(id)
+);
+"""
+
 from db import RUN_SQL
 
 async def CreateTables():
@@ -52,6 +77,10 @@ async def CreateTables():
     print("cli.py: created projects table")
     await RUN_SQL(CREATE_COMMENTS_TABLE)
     print("cli.py: created comments table")
+    await RUN_SQL(CREATE_LIKEDS_TABLE)
+    print("cli.py: created likeds table")
+    await RUN_SQL(CREATE_VIEWEDS_TABLE)
+    print("cli.py: created vieweds table")
 
 print("cli.py: Creating tables")
 import asyncio

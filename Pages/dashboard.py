@@ -2,7 +2,7 @@ from UI import Label, Input, Button, Icon, RawCol, RawRow, Card, AddSpace, Heade
 from ENV import NAME, ICON
 from models import Variable
 from database.project import createEmtpyProject, getAllProjects
-from storage import getUserStorage, userID, getTabStorage as gts, updateTabStorage as uts
+from storage import getUserStorage as gts, updateUserStorage as uts, userID
 from .Dashboard import *
 from loading import showLoading
 
@@ -47,6 +47,8 @@ def createDrawer(area,var):
             sb.on_click(lambda bs=bs:changePage(area, var, "settings",bs))
         return drawer, bs
 
+import asyncio
+
 async def render():
     loading = showLoading("Dashboard").classes("w-full h-[73vh]")
     var = Variable()
@@ -55,6 +57,7 @@ async def render():
         if d:d[0].toggle()
     context = ui.context
     await context.client.connected()
+    await asyncio.sleep(2)
     with Header() as header:
         Icon('menu','md').on('click', toggle).classes(
                 "rounded transition-all duration-200 "

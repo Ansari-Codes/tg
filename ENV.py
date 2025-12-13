@@ -6,7 +6,7 @@ PROD = False
 
 HOST = '0.0.0.0'
 PORT = int(environ.get("PORT", 8000))
-SECRET = str(uuid.uuid4().hex)
+SECRET = str("my-secret-key-is-that-with-fixed-host-but-random-port")
 
 NAME = "TurtleGraphics"
 ICON = "🐢"

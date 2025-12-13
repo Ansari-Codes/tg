@@ -1,6 +1,6 @@
-from UI import Label, Button, RawCol, RawRow, ui, Html, AddSpace
+from UI import Label, Button, RawCol, RawRow, ui, Html, Icon, AddSpace
 from storage import getUserStorage, updateUserStorage
-from database.project import loadProject
+from database.project import loadProjectWithOwner
 from loading import showLoading
 from js import ZOOM_PAN
 import ENV
@@ -10,7 +10,7 @@ async def render(slug):
     context = ui.context.client
     await context.connected()
 
-    project = await loadProject(slug)
+    project = await loadProjectWithOwner(slug)
     data = project.data
 
     async def run():
@@ -27,7 +27,7 @@ async def render(slug):
         Button("Dashboard").props("href='/dashboard' target='_blank'")
 
     if project.success:
-        with ui.element().classes("w-full h-full flex flex-col sm:grid sm:grid-cols-2 gap-2 px-1 sm:px-[10vw]"):
+        with ui.element().classes("w-full h-full flex flex-col sm:grid sm:grid-cols-2 gap-2 px-1 lg:px-[10vw]"):
 
             # Left column: buttons + canvas
             with RawCol().classes(
@@ -37,9 +37,12 @@ async def render(slug):
                 with RawRow().classes("w-full gap-2 h-fit justify-start sm:justify-start items-center"):
                     Label(data.get("title", "Untitled").title()).classes("text-xl font-semibold")
                     AddSpace()
-                    Button(on_click=run, config=dict(icon="play_circle", color="primary"))
-                    Button(on_click=stop, config=dict(icon="stop", color="negative"))
-                    Button(config=dict(icon="code", color="positive"))
+                    with Button(config=dict(icon="arrow_drop_down_circle")):
+                        with ui.menu().props("auto-close"):
+                            with RawCol().classes("w-fit gap-1 p-1"):
+                                Button(on_click=run, config=dict(icon="play_circle", color="primary"))
+                                Button(on_click=stop, config=dict(icon="stop", color="negative"))
+                                Button(config=dict(icon="code", color="positive"))
 
                 # Canvas row
                 Html(f"""
@@ -63,7 +66,11 @@ async def render(slug):
                 ui.markdown(
                     data.get("description", "No Description provided!"),
                     extras=["fenced-code-blocks", "tables", "mermaid", "latex"]
-                ).classes("m-3 max-h-full overflow-auto")
-
+                ).classes("m-3 max-h-[60%] h-full overflow-auto bg-primary")
+                with ui.element().classes("w-full h-[30%] border-t-2 border-[var(--q-secondary)]"):
+                    likes = data.get("likes", "N/A")
+                    with RawRow().classes("w-fit h-fit items-center"):
+                        Icon("favorite", "sm", "red")
+                        Label(likes).classes("text-lg font-semibold text-red-500")
     else:
         Label("Error loading the project!").classes("text-2xl text-red font-bold")

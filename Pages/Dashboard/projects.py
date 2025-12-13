@@ -124,18 +124,19 @@ async def projects(area):
         for _ in __w: _.set_enabled(True)
     d = Dialog()
     with RawRow().classes("w-full gap-2"):
-        with RawRow().classes("w-fit"):
+        with RawRow().classes("w-full sm:w-fit"):
             async def search(s):
                 page.set(1)
                 await updateProjects({"search_q":s.value.__str__()})
             sq = Input(on_change=search).classes(
                 "transition-all duration-300 ease-in-out "
-                "w-[200px] "
-                "hover:w-[250px] ",
+                "w-[80%] "
+                "sm:w-[200px] ",
             ).props("input-class='rounded-r-0'")
-            Button(config=dict(icon="search"), on_click=lambda s=sq:search(s)).props("unelevated", remove="push").classes("rounded-l-0")
-        new = Button("New", ask, config={"icon":"add"})
-        ref = Button("Refresh", updateProjects, config={"icon":"refresh"})
+            Button(config=dict(icon="search"), on_click=lambda s=sq:search(s)).props("unelevated", remove="push").classes("rounded-l-0 w-[18%]")
+        new = Button(on_click=ask, config={"icon":"add"})
+        ref = Button(on_click=updateProjects, config={"icon":"refresh"})
+        AddSpace()
         with RawRow().classes("w-fit h-fit gap-1 justify-center items-center"):
             Label("Per Page: ").classes("text-xl font-semibold")
             ppg = Select(value=per_page.value, options=[10, 20, 30, 40, 50, 60, 70, 80, 90, 100])

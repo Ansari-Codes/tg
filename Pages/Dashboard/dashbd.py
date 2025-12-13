@@ -14,6 +14,7 @@ async def dashbd(area):
     drafts = p.get("draft", "N/A") or "0"
     pubs = p.get("pubs", "N/A") or "0"
     likes = p.get("likes", "N/A") or "0"
+    views = p.get("views", "N/A")
     latest = await getLatestProjects(userID())
     errors = {**pr.errors, **latest.errors}
     projectss = await getAllProjectsWithoutPaginationOrSearch(userID())
@@ -29,6 +30,13 @@ async def dashbd(area):
                     with RawRow().classes("w-full gap-1 text-red-500 items-center"):
                         Icon("favorite", "lg");AddSpace()
                         Label(likes).classes("text-4xl font-extrabold")
+            with Card().classes("h-fit"):
+                with RawCol().classes("w-full gap-1"):
+                    Label(f"Total Views").classes("text-lg font-bold")
+                    with RawRow().classes("w-full gap-1 text-red-500 items-center"):
+                        Icon("visibility", "lg");AddSpace()
+                        Label(views).classes("text-4xl font-extrabold")
+                        print(views)
             with Card().classes("h-fit"): 
                 with RawCol().classes("w-full gap-1"):
                     Label(f"Total Projects").classes("text-lg font-bold")

@@ -1,3 +1,4 @@
+from nicegui import Client
 from ENV import ui, THEME, app
 from typing import Callable, Literal
 from storage import getThemeStorage, updateThemeStorage
@@ -79,7 +80,7 @@ def Button(
         text: str = "", 
         on_click = lambda: (),
         link="",
-        new_tab="",
+        new_tab=False,
         config: dict|None = None
     ):
     if not config: config = {}
@@ -197,3 +198,25 @@ def confirm(statement="", on_yes=None, on_no=None):
                 Button("Yes", config=dict(icon='check'), on_click=on_yes)
                 Button("No", config=dict(icon='close'), on_click=on_no or d.delete)
     return d
+
+def navBar(icon = "", links:dict|None = None, bkp="sm"):
+    with ui.element().classes("w-fit h-fit") as nav:
+        with ui.element().classes(f"items-center justify-between gap-2 hidden {bkp}:!flex", remove='hidden') as desktop:
+            for name,opts in (links or {}).items():
+                if isinstance(opts, (dict)):
+                    condition = opts.pop("cond", True)
+                    if condition:
+                        Button(name, **opts)
+                else:
+                    Button(name, link=opts)
+        with Button(config=dict(icon="menu")).classes(f"flex {bkp}:hidden") as mobile:
+            with ui.menu().props("auto-close"):
+                with RawCol().classes("w-fit gap-1 p-1 bg-secondary"):
+                    for name,opts in (links or {}).items():
+                        if isinstance(opts, (dict)):
+                            condition = opts.pop("cond", True)
+                            if condition:
+                                Button(name, **opts).classes("w-full")
+                        else:
+                            Button(name, link=opts).classes("w-full")
+    return nav, desktop, mobile

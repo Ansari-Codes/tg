@@ -1,4 +1,4 @@
-from db import RUN_SQL, PROJECTS
+from db import RUN_SQL, PROJECTS, USERS, LIKEDS, VIEWEDS
 from models import Response
 from .helpers import isUnique, escapeSQL, randomstr, rnd
 from storage import getUserStorage
@@ -20,10 +20,11 @@ async def createEmtpyProject():
     pycode = "print('Turtle graphics')"
     jscode = "console.log('Turtle graphics')"
     likes = str(0)
+    views = str(0)
     description = ""
     query = f"""
-    INSERT INTO {PROJECTS} ( title , owner , slug , pycode , jscode , likes , description )
-    VALUES ('{escapeSQL(title)}', '{escapeSQL(owner)}', '{escapeSQL(slug)}', '{escapeSQL(pycode)}', '{escapeSQL(jscode)}', '{escapeSQL(likes)}', '{escapeSQL(description)}');
+    INSERT INTO {PROJECTS} ( title , owner , slug , pycode , jscode , likes , description , views )
+    VALUES ('{escapeSQL(title)}', '{escapeSQL(owner)}', '{escapeSQL(slug)}', '{escapeSQL(pycode)}', '{escapeSQL(jscode)}', '{escapeSQL(likes)}', '{escapeSQL(description)}', '{escapeSQL(views)}');
     """
     try:
         await RUN_SQL(query)
@@ -127,6 +128,37 @@ async def loadProject(item, by="slug"):
         res.errors["project"] = "Project not found"
     return res
 
+async def loadProjectWithOwner(item, by="slug"):
+    res = Response()
+    value = escapeSQL(str(item))
+    value = f"'{value}'"
+
+    query = f"""
+    SELECT p.*, 
+        u.id AS owner_id, 
+        u.name AS owner_name, 
+        u.email AS owner_email, 
+        u.avatar AS owner_avatar
+    FROM {PROJECTS} AS p
+    LEFT JOIN {USERS} AS u
+        ON p.owner = u.id
+    WHERE p.{by} = {value}
+    ORDER BY p.id DESC
+    LIMIT 1;
+    """
+    try:
+        project = await RUN_SQL(query, True)
+    except Exception as e:
+        res.errors['project'] = "Cannot load project!"
+        print(e)
+        return res
+    if project and project[0]:
+        res.data = project[0]
+    else:
+        res.data = {}
+        res.errors["project"] = "Project not found"
+    return res
+
 async def updateProject(data: dict):
     if 'id' not in data:
         raise KeyError("updateProject: Missing 'id' in incoming data")
@@ -158,3 +190,86 @@ async def deleteProject(id):
         res.errors['error'] = str(e)
     return res
 
+async def likeAProject(project_id, liker_id):
+    res = Response()
+    try:
+        query_check = f"""
+        SELECT 1 FROM {LIKEDS}
+        WHERE project_id = {project_id} AND liker_id = {liker_id}
+        LIMIT 1;
+        """
+        existing = await RUN_SQL(query_check, to_fetch=True)
+        if existing:
+            query_del = f"""
+            DELETE FROM {LIKEDS}
+            WHERE project_id = {project_id} AND liker_id = {liker_id};
+            """
+            await RUN_SQL(query_del)
+            query_update = f"""
+            UPDATE {PROJECTS}
+            SET likes = likes - 1
+            WHERE id = {project_id} AND likes > 0;
+            """
+            await RUN_SQL(query_update)
+            action = "disliked"
+        else:
+            query_insert = f"""
+            INSERT INTO {LIKEDS} (project_id, liker_id)
+            VALUES ({project_id}, {liker_id});
+            """
+            await RUN_SQL(query_insert)
+            query_update = f"""
+            UPDATE {PROJECTS}
+            SET likes = likes + 1
+            WHERE id = {project_id};
+            """
+            await RUN_SQL(query_update)
+            action = "liked"
+        query2 = f"SELECT likes FROM {PROJECTS} WHERE id = {project_id}"
+        updated = await RUN_SQL(query2, to_fetch=True)
+        res.data = {
+            "id": project_id,
+            "likes": updated[0]["likes"] if updated else 0,
+            "action": action
+        }
+    except Exception as e:
+        print("Error toggling like:", e)
+        res.errors["like"] = "Cannot like project"
+    return res
+
+
+async def viewAProject(project_id, viewer_id):
+    res = Response()
+    try:
+        query_check = f"""
+        SELECT 1 FROM {VIEWEDS}
+        WHERE project_id = {project_id} AND viewer_id = {viewer_id}
+        LIMIT 1;
+        """
+        existing = await RUN_SQL(query_check, to_fetch=True)
+        if existing:
+            res.errors['view'] = "already viewed"
+            return res
+        else:
+            query_insert = f"""
+            INSERT INTO {VIEWEDS} (project_id, viewer_id)
+            VALUES ({project_id}, {viewer_id});
+            """
+            await RUN_SQL(query_insert)
+            query_update = f"""
+            UPDATE {PROJECTS}
+            SET views = views + 1
+            WHERE id = {project_id};
+            """
+            await RUN_SQL(query_update)
+        query2 = f"SELECT views FROM {PROJECTS} WHERE id = {project_id}"
+        updated = await RUN_SQL(query2, to_fetch=True)
+        res.data = {
+            "id": project_id,
+            "views": updated[0]["views"] if updated else 0,
+        }
+    except Exception as e:
+        print("Error viewing:", e)
+        res.errors["view"] = "Cannot view project"
+
+    return res

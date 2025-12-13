@@ -22,6 +22,7 @@ async def countProjects(item, by='owner'):
             SELECT 
                 COUNT(*) AS total,
                 SUM(likes) AS lks,
+                SUM(views) AS vws,
                 SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) AS drafts,
                 SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) AS publics
             FROM {PROJECTS}
@@ -38,9 +39,10 @@ async def countProjects(item, by='owner'):
             "draft": row.get("drafts", 0),
             "pubs": row.get("publics", 0),
             "likes": row.get("lks", 0),
+            "views": row.get("vws", 0),
         }
     else:
-        res.data = {"projs": 0, "draft": 0, "pubs": 0, "likes": 0}
+        res.data = {"projs": 0, "draft": 0, "pubs": 0, "likes": 0, "views": 0}
     return res
 
 async def getLatestProjects(owner, count=5):
