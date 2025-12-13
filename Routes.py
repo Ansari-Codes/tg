@@ -54,3 +54,6 @@ async def cc(slug: str):
     if auth(): await rc(slug)
     else: navigate(f"/login?redirectTo=/create/{slug}")
 
+@ui.page("/create")
+async def ccc():
+    await rc(slug=None)

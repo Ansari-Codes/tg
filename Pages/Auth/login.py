@@ -22,6 +22,7 @@ async def lgn(iv, pv, ie, pe, l):
         Notify(res.errors.get("acc", "Unknown error occured!"), type='negative')
         return
     res.data['auth'] = True
+    print(res.data)
     updateUserStorage(res.data)
     print("LogIn:", res.data) 
     Notify("Access granted!", type='positive')

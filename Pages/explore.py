@@ -32,6 +32,7 @@ def sectionLabel(text):
     return Label(text).classes("w-full text-md font-semibold")
 
 async def render():
+    await ui.context.client.connected()
     __w = []
     page = Variable(1) # type: ignore
     per_page = Variable(10) # type: ignore
@@ -75,7 +76,6 @@ async def render():
                 Label("Unable to fetch projects!").classes("text-xl font-bold text-red-500")
         for _ in __w: _.set_enabled(True)
     d = Dialog()
-    s = showLoading("Explorer")
     with ui.header().classes("flex items-center bg-secondary"):
         Label("Explore").classes("text-xl font-bold")
         AddSpace()
@@ -97,8 +97,7 @@ async def render():
             page.value = 1
             await updateProjects()
         ppg.on_value_change(pppg)
-    c = RawCol().classes("w-full h-fit max-h-[78vh] mt-2 justify-center items-center")
+    c = RawCol().classes("w-full mt-2 justify-center items-center")
     await updateProjects()
     for i in js:
         ui.run_javascript(i)
-    s.delete()

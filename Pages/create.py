@@ -189,12 +189,15 @@ async def render(slug):
     context = ui.context.client
     dialog = Dialog()
     await context.connected()
-    projec = await loadProject(slug)
-    project:dict = projec.data
-    if not projec.success:
-        c.delete()
-        Label("Cannot load project!").classes("text-xl font-bold text-red-500")
-        return
+    if slug:
+        projec = await loadProject(slug)
+        project:dict = projec.data
+        if not projec.success:
+            c.delete()
+            Label("Cannot load project!").classes("text-xl font-bold text-red-500")
+            return
+    else:
+        project = {}
     project['status'] = project.get("status", "0").__str__()
     uts(project)
     isSmallScreen = int(await ui.run_javascript("window.innerWidth")) < 500
@@ -208,11 +211,6 @@ async def render(slug):
         n.dismiss()
         uts(pjt)
         Notify("Changes Saved!", color="success")
-    def print_(*args, end="\n", classes="", props="", style=""):
-        content = ' '.join([str(i) for i in args])
-        log.print(content, classes, props, style)
-        return None
-    itsglobal['__builtins__']['print'] = print_
     async def run():
         if not code.value.strip(): return
         shared = []
@@ -227,7 +225,11 @@ async def render(slug):
         screen._js_actions = shared
         def sleep__(ms: int):
             shared.append(f"await delay({ms});")
-        safe_globals = {**itsglobal, "Screen":screen, "Turtle":Turtle, "sleep": sleep__}
+        def print_(*args, classes="", props="", style=""):
+            content = ' '.join([str(i) for i in args])
+            shared.append(f"print('{content}', '{classes}', '{props}','{style}')")
+            return None
+        safe_globals = {**itsglobal, "Screen":screen, "Turtle":Turtle, "sleep": sleep__, "print": print_}
         out, err, e = await execute(code.value, safe_globals)
         js = ''
         for l in shared:js += '\n' + l.strip()
@@ -237,11 +239,20 @@ async def render(slug):
         js_ = """
         (async function() {
             const canvas = document.getElementById("{{canvas}}");
+            const logger = document.getElementById("t-logger");
             if (!canvas) {
                 console.error('Canvas not found');
                 return;
             }
             async function delay(ms){return new Promise(r=>setTimeout(r,ms));}
+            async function print(msg, clas="", props="", styles=""){
+                const p = document.createElement("p");
+                p.className = clas;
+                p.style.cssText = styles;
+                p.innerHTML = msg;
+                logger.appendChild(p);
+                logger.scrollTop = logger.scrollHeight;
+            }
             window.is_running = true;
             let cw = () => canvas.width;
             let ch = () => canvas.height;
@@ -291,7 +302,7 @@ async def render(slug):
                     t.bind_value(code)
                     code.value = project.get('pycode') #type:ignore
                 with sp.after:
-                    log = Logger().classes("bg-blue-100 dark:bg-primary w-full h-full")
+                    log = Html("<div class='bg-blue-100 dark:bg-primary w-full h-full' id='t-logger'></div>").classes("w-full h-full")
         with s.after:
             Html("""
 <div id="canvas-wrapper" class="w-full h-full overflow-hidden bg-gray-200">

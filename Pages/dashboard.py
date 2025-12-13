@@ -14,7 +14,7 @@ async def changePage(area:ui.element, var:Variable, name:str, triggerer=None):
         if triggerer:
             for t in triggerer:t.set_enabled(False)
         try:
-            if name == 'dashboard': await dashbd(area)
+            if name == 'dashboard': await dashbd(area) #type:ignore
             elif name == 'projects': await projects(area)
             elif name == 'analytics': await analytics(area)
             elif name == 'settings': await settings(area)

@@ -2,7 +2,7 @@
 from db import RUN_SQL, USERS
 from models import Response
 from .helpers import  verifyMail, verifyPswd, verifyUsername, escapeSQL, isUnique
-
+from devdb import SQL
 async def unique(item, col):
     return await isUnique(item, col, USERS)
 
@@ -17,6 +17,7 @@ async def insert_user(name, mail, pswd, avatar):
     WHERE name = '{name}' AND email = '{mail}';
     """
     row = await RUN_SQL(fetch_query, True)
+    print("insert_user: ", row)
     return row[0] if row else {}
 
 async def signup(
@@ -34,17 +35,23 @@ async def signup(
     if not verifyUsername(name): res.errors['name'] = "Username can only contain letters and numbers."
     if not verifyMail(mail): res.errors['mail'] = "Invalid mail."
     if not verifyPswd(pswd): res.errors['pswd'] = "Password is not strong."
-    # try:
-    if not await unique(name, 'name'):
-        res.errors['name'] = "Username already taken!"
-    if not await unique(mail, 'email'):
-        res.errors['mail'] = "Email already taken!"
-    if not res.success: return res
-    res.data = await insert_user(name, mail, pswd, avatar)
-    # except Exception as e:
-    #     res.errors['other'] = "Cannot create account!"
-    #     print(e)
-    #     return res
+    try:
+        if not await unique(name, 'name'):
+            res.errors['name'] = "Username already taken!"
+        else:
+            print("Username is valid")
+        if not await unique(mail, 'email'):
+            res.errors['mail'] = "Email already taken!"
+        else:
+            print("Mail is valid")
+        if not res.success: return res
+        else:
+            print("Succeeded")
+        res.data = await insert_user(name, mail, pswd, avatar)
+    except Exception as e:
+        res.errors['other'] = "Cannot create account!"
+        print(e)
+        return res
     print(res.data)
     return res
 

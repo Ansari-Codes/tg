@@ -1,4 +1,4 @@
-from ENV import ui, THEME
+from ENV import ui, THEME, app
 from typing import Callable, Literal
 from storage import getThemeStorage, updateThemeStorage
 
