@@ -10,21 +10,17 @@ def proj(project: dict, js=None):
     with RawRow().classes("relative w-full grid grid-cols-6 gap-2", remove="flex flex-row"):
         Label(project.get("title", "Untitled").title()).classes("text-xl font-bold break-words break-all overflow-hidden col-span-5")
         Button(config=dict(icon="open_in_new"), link=f"/project/{slug}", new_tab=True).props("dense", remove="push").classes("px-1.5 h-fit")
-    with RawRow().classes("w-full aspect-square"):
+    with RawRow().classes("w-full aspect-square border-[1px] border-[var(--q-secondary)] rounded-sm"):
         Html(f'<canvas id="t-{slug}-canvas" class="w-full h-full"></canvas>')
-        js.append(project.get("jscode","").replace("{{canvas}}", f"t-{slug}-canvas", 1)) #type:ignore
-    with RawRow().classes("w-full px-2 gap-1 items-end"):
-        with RawRow().classes("w-fit font-bold items-end"):
-            if project.get("status"):
-                Icon("public", 'xs', 'green-700').classes("dark:text-green-300")
-                Label("Public").classes("text-md text-green-700 dark:text-green-300")
-            else: 
-                Icon("drafts", 'xs', 'yellow-600')
-                Label("Draft").classes("text-md text-yellow-600 dark:text-yellow ")
-        with RawRow().classes("w-fit font-bold items-end"):
+        js.append(project.get("jscode","").replace("{{thumbnail}}", "true").replace("{{canvas}}", f"t-{slug}-canvas", 1)) #type:ignore
+    with RawRow().classes("w-full px-2 gap-1 items-center"):
+        with RawRow().classes("w-fit font-bold items-center"):
+            Icon("visibility", 'xs', 'yellow-600')
+            Label(project.get("views", 0)).classes("text-md text-yellow-600 dark:text-yellow ")
+        with RawRow().classes("w-fit font-bold items-center"):
             Icon("favorite", 'xs', 'red')
             Label(project.get("likes",0)).classes("text-md text-red")
-        with RawRow().classes("font-bold items-end"):
+        with RawRow().classes("font-bold items-center"):
             Icon("person", "xs", "primary")
             Label(project.get("owner_name", "Anonymous").title()).classes("text-priamry text-md")
 

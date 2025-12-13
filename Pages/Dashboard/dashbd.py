@@ -23,7 +23,7 @@ async def dashbd(area):
             Notify(e, type='negative')
     try:
         Html(f"Hi, <span class='text-primary'>{user.get('name', '').title()}!</span>").classes("w-full text-5xl font-bold mb-2")
-        with RawRow().classes("w-full p-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-2", remove='flex flex-row'):
+        with RawRow().classes("w-full p-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-5 gap-2", remove='flex flex-row'):
             with Card().classes("h-fit"):
                 with RawCol().classes("w-full gap-1"):
                     Label(f"Total Likes").classes("text-lg font-bold")
@@ -38,19 +38,19 @@ async def dashbd(area):
                         Label(views).classes("text-4xl font-extrabold")
             with Card().classes("h-fit"): 
                 with RawCol().classes("w-full gap-1"):
-                    Label(f"Total Projects").classes("text-lg font-bold")
+                    Label(f"Projects").classes("text-lg font-bold")
                     with RawRow().classes("w-full gap-1 text-secondary items-center"):
                         Icon("code", "lg");AddSpace()
                         Label(projects).classes("text-4xl font-extrabold")
             with Card().classes("h-fit"): 
                 with RawCol().classes("w-full gap-1"):
-                    Label(f"Draft Projects").classes("text-lg font-bold")
+                    Label(f"Drafts").classes("text-lg font-bold")
                     with RawRow().classes("w-full gap-1 text-yellow-700 dark:text-yellow-500 items-center"):
                         Icon("drafts", "lg");AddSpace()
                         Label(drafts).classes("text-4xl font-extrabold")
             with Card().classes("h-fit"): 
                 with RawCol().classes("w-full gap-1"):
-                    Label(f"Public Projects").classes("text-lg font-bold")
+                    Label(f"Publics").classes("text-lg font-bold")
                     with RawRow().classes("w-full gap-1 text-green-500 items-center"):
                         Icon("public", "lg");AddSpace()
                         Label(pubs).classes("text-4xl font-extrabold")

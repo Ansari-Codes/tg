@@ -46,14 +46,17 @@ async def _del_prject(id, d, updater):
 
 def proj(project: dict, del_proj=lambda i:()):
     slug = project.get('slug')
-    with Label(project.get("title", "Untitled").title()).classes("text-xl font-bold break-words break-all overflow-hidden"):
+    def context_menu():
         with ui.context_menu():
             ui.menu_item("Edit", lambda:(navigate(f"/create/{slug}",True) if slug else None)).classes("bg-primary font-bold text-md")
             ui.menu_item("View", lambda:(navigate(f"/project/{slug}",True) if slug else None)).classes("bg-primary font-bold text-md")
             ui.menu_item("Delete", lambda:del_proj(project.get('id'))).classes("bg-red-500 font-bold text-md")
-    with RawRow().classes("w-full aspect-square"):
+    with Label(project.get("title", "Untitled").title()).classes("text-xl font-bold break-words break-all overflow-hidden"):
+        context_menu()
+    with RawRow().classes("w-full aspect-square border-[1px] border-[var(--q-secondary)] rounded-sm"):
         Html(f'<canvas id="t-{slug}-canvas" class="w-full h-full"></canvas>')
-        ui.run_javascript(project.get("jscode","").replace("{{canvas}}", f"t-{slug}-canvas", 1))
+        ui.run_javascript(project.get("jscode","").replace("{{thumbnail}}", "true").replace("{{canvas}}", f"t-{slug}-canvas", 1))
+        context_menu()
     with RawRow().classes("w-full px-2 gap-1 items-end"):
         with RawRow().classes("w-fit font-bold items-end"):
             if project.get("status"):

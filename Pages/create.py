@@ -244,7 +244,11 @@ async def render(slug):
                 console.error('Canvas not found');
                 return;
             }
-            async function delay(ms){return new Promise(r=>setTimeout(r,ms));}
+            let thumbnail = {{thumbnail}};
+            async function delay(ms){
+                if (thumbnail) return;
+                return new Promise(r=>setTimeout(r,ms));
+            }
             async function print(msg, clas="", props="", styles=""){
                 const p = document.createElement("p");
                 p.className = clas;
@@ -261,12 +265,24 @@ async def render(slug):
             {{js}}
         })();
         """
-        wrapped_js = js_.replace("{{canvas}}", "t-canvas", 1).replace("{{js}}", js, 1)
+        wrapped_js = js_.replace("{{canvas}}", "t-canvas", 1).replace("{{thumbnail}}", "false").replace("{{js}}", js, 1)
         jscode.value = js_.replace("{{js}}", js, 1)
         ui.run_javascript("window.is_running = false;" + wrapped_js)
-        if out: print_(out)
-        if err: print_(err)
-        if e: print_(e)
+        def printer_print(val, c="", p="", s=""):
+            ui.run_javascript(f"""
+            const logger = document.getElementById("t-logger");
+            async function print(msg, clas="", props="", styles=""){{
+                const p = document.createElement("p");
+                p.className = clas;
+                p.style.cssText = styles;
+                p.innerHTML = msg;
+                logger.appendChild(p);
+                logger.scrollTop = logger.scrollHeight;
+            }}
+            print("{val}", "{c}", "{p}", "{s}")""")
+        if out: printer_print(out)
+        if err: printer_print(err, "text-red-500 font-bold")
+        if e: printer_print(e, "text-lg text-yellow-800 font-bold")
     tm = Variable()
     tm.value = project.get("title","UnTitled")
     sss = lambda x:"<span class='text-yellow-500'>Draft</span>" if not float(x) else "<span class='text-green-500'>Public</span>"
