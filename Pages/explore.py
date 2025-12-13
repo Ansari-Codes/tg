@@ -1,4 +1,4 @@
-from UI import Label, Input, Button, Icon, RawCol, RawRow, Card, SoftBtn, Choice, AddSpace, Header, Html, confirm, Dialog, navigate, Select, ui, Notify
+from UI import Label, Input, Button, Icon, RawCol, RawRow, Card, Choice, AddSpace, Header, Html, confirm, Dialog, navigate, Select, ui, Notify
 from ENV import NAME, ICON
 from models import Variable
 from database.brows import getPaginated
@@ -9,7 +9,7 @@ def proj(project: dict, js=None):
     slug = project.get('slug')
     with RawRow().classes("relative w-full grid grid-cols-6 gap-2", remove="flex flex-row"):
         Label(project.get("title", "Untitled").title()).classes("text-xl font-bold break-words break-all overflow-hidden col-span-5")
-        Button(config=dict(icon="open_in_new"), on_click=lambda:navigate(f"/project/{slug}")).props("dense", remove="push").classes("px-1.5 h-fit")
+        Button(config=dict(icon="open_in_new"), link=f"/project/{slug}").props("dense", remove="push").classes("px-1.5 h-fit")
     with RawRow().classes("w-full aspect-square"):
         Html(f'<canvas id="t-{slug}-canvas" class="w-full h-full"></canvas>')
         js.append(project.get("jscode","").replace("{{canvas}}", f"t-{slug}-canvas", 1)) #type:ignore

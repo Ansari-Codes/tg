@@ -1,4 +1,4 @@
-from UI import Label, Input, Button, Icon, RawCol, RawRow, Card, SoftBtn, Html, Choice, AddSpace, Header, confirm, Dialog, navigate, Select, ui, Notify
+from UI import Label, Input, Button, Icon, RawCol, RawRow, Card, Html, Choice, AddSpace, Header, confirm, Dialog, navigate, Select, ui, Notify
 from ENV import NAME, ICON
 from models import Variable
 from database.project import createEmtpyProject, getAllProjects, deleteProject
@@ -134,8 +134,8 @@ async def projects(area):
                 "hover:w-[250px] ",
             ).props("input-class='rounded-r-0'")
             Button(config=dict(icon="search"), on_click=lambda s=sq:search(s)).props("unelevated", remove="push").classes("rounded-l-0")
-        new = Button("New", ask, {"icon":"add"})
-        ref = Button("Refresh", updateProjects, {"icon":"refresh"})
+        new = Button("New", ask, config={"icon":"add"})
+        ref = Button("Refresh", updateProjects, config={"icon":"refresh"})
         with RawRow().classes("w-fit h-fit gap-1 justify-center items-center"):
             Label("Per Page: ").classes("text-xl font-semibold")
             ppg = Select(value=per_page.value, options=[10, 20, 30, 40, 50, 60, 70, 80, 90, 100])

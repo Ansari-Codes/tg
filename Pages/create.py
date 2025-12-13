@@ -1,4 +1,4 @@
-from UI import Label, Header, Input, Button, TextArea, Dialog, SoftBtn, Col, Row, AddSpace, Html, Logger, ui
+from UI import Label, Header, Input, Button, TextArea, Dialog, Col, Row, AddSpace, Html, Logger, ui
 from UI.BASIC import Card, Notify, RawCol, RawRow
 from database.project import loadProject, updateProject, unique
 from js import ZOOM_PAN

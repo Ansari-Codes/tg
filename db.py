@@ -22,13 +22,13 @@ async def RUN_SQL(query: str, to_fetch: bool = False):
     q += 1
     print(f"DB: {q}: Running\n\t", query)
     try:
-        # async with httpx.AsyncClient(timeout=10) as client:
-        #     response = await client.post(API_URL, json=payload)
-        #     response.raise_for_status()
-        #     res = response.json()
-        #     if res.get("success"): return res.get("data", [{}])
-        #     else: raise Exception(res.get("error"))
-        return await SQL(query, to_fetch)
+        async with httpx.AsyncClient(timeout=10) as client:
+            response = await client.post(API_URL, json=payload)
+            response.raise_for_status()
+            res = response.json()
+            if res.get("success"): return res.get("data", [{}])
+            else: raise Exception(res.get("error"))
+        # return await SQL(query, to_fetch)
     except httpx.HTTPStatusError as e: raise
     except httpx.RequestError as e: raise
     except Exception as e: raise e

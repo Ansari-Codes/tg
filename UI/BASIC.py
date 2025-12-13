@@ -38,50 +38,6 @@ def Link(
     ):
     return ui.link(text, link, new_tab).classes("hover:underline"*underline )
 
-def SoftBtn(
-        text: str = "",
-        on_click: Callable = lambda: (),
-        link: str = "",
-        new_tab: bool = False,
-        icon: str = "",
-        icon_config: dict|None = None,
-        icon_side: Literal['r', 'l'] = 'l',
-        px: int = 4,
-        py: int = 2,
-        clr: str = "btn",
-        ripple: bool = True,
-        hover_effects: bool = True,
-        active_effects: bool = True,
-        text_align: Literal['left', 'center', 'right'] = 'center',
-        rounded: Literal['none', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', 'full']|None = 'sm',
-        justify: Literal['center', 'between', None] = 'center',
-        text_clr: str = "",
-    ):
-    colors = list(THEME.keys())
-    c = clr or "transparent"
-    tc = text_clr or "white"
-    if c not in colors+['transparent']: c = f"[{c}]"
-    if tc not in colors+['transparent']: tc = f"[{tc}]"
-    if c == "btn": c += "btn-l dark:bg-btn-d"
-    icon_config = icon_config or {}
-    base_classes = (
-        f"flex items-center{' justify-'+justify if justify else ''} gap-0 text-{text_align or 'center'} "
-        f"px-{px} py-{py} rounded-{rounded or 'none'} text-{tc} text-[14px] font-medium "
-        f"transition-all duration-200 ease-in-out "
-        f"bg-{c} shadow-md {'hover:shadow-lg'*bool(hover_effects)} {'active:scale-95'*bool(active_effects)} "
-        f"select-none cursor-pointer {'ripple'*bool(ripple)} no-underline"
-    )
-    classes = f"{base_classes}".strip()
-    with (ui.link("", link, new_tab) if link else Row()).classes(classes) as btn:
-        if icon and icon_side == 'l':
-            ui.icon(icon, **icon_config).classes(f"text-[18px]")
-        if text:
-            ui.label(text)
-        if icon and icon_side == 'r':
-            ui.icon(icon, **icon_config).classes(f"text-[18px]")
-    btn = btn.on('click', on_click)
-    return btn
-
 def Choice(choices:list|dict, value, **kwargs):
     return ui.toggle(choices, value=value, **kwargs)
 
@@ -122,10 +78,17 @@ def Select(
 def Button(
         text: str = "", 
         on_click = lambda: (),
+        link="",
+        new_tab="",
         config: dict|None = None
     ):
     if not config: config = {}
-    return ui.button(text=text, on_click=on_click, **config).props("unelevated push").classes("bg-btn-l dark:bg-btn-d")
+    btn = ui.button(text=text, on_click=on_click, **config).props("unelevated push").classes("bg-btn-l dark:bg-btn-d")
+    if link:
+        btn.props(f'href="{link}"')
+    if new_tab:
+        btn.props(f'target="_blank"')
+    return btn
 
 def TextArea(
         content: str = "",

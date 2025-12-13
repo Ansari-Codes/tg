@@ -1,4 +1,4 @@
-from UI import Label, Input, Button, Icon, RawCol, RawRow, Card, SoftBtn, AddSpace, Header, Dialog, navigate, Notify, ui
+from UI import Label, Input, Button, Icon, RawCol, RawRow, Card, AddSpace, Header, Dialog, navigate, Notify, ui
 from ENV import NAME, ICON
 from models import Variable
 from database.project import createEmtpyProject, getAllProjects

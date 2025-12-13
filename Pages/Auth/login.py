@@ -1,5 +1,5 @@
 # ui file (snippet)
-from UI import Card, Center, Input, SoftBtn, Label, Row, Col, RawCol, RawRow, AddSpace, CheckBox, Notify, Button, navigate
+from UI import Card, Center, Input, Label, Row, Col, RawCol, RawRow, AddSpace, CheckBox, Notify, Button, navigate
 from models import Variable
 from database.auth import signup, login
 from storage import getUserStorage, updateUserStorage
@@ -60,6 +60,6 @@ async def render(l='/dashboard'):
                 widgets.append(Input(pv).classes("w-full"))
 
                 btn = Button("LogIn", on_click=sp)
-                btn2 = Button("SignUp", on_click=lambda:navigate(f"/signup?redirectTo={l}"), config=dict(color='secondary'))
+                btn2 = Button("SignUp", config=dict(color='secondary'), link=f"/signup?redirectTo={l}")
                 widgets.append(btn)
                 widgets.append(btn2)

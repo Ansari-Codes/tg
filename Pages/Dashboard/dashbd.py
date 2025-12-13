@@ -1,4 +1,4 @@
-from UI import Label, Input, Card, Col, Row, RawCol, RawRow, TextArea, SoftBtn, Link, Button, Html, Icon, Notify, ui, AddSpace, navigate
+from UI import Label, Input, Card, Col, Row, RawCol, RawRow, TextArea, Link, Button, Html, Icon, Notify, ui, AddSpace, navigate
 from database.dashb import getUser, countProjects, getLatestProjects, getAllProjectsWithoutPaginationOrSearch
 from storage import getUserStorage, userID
 from loading import showLoading
@@ -57,7 +57,9 @@ async def dashbd(area):
                                 Label(project.get("title","").title()).classes("text-lg font-semibold max-w-[50%] truncate")
                                 AddSpace()
                                 Icon("drafts" if not project.get("status") else "public", 'sm'
-                                    ).classes("p-1").classes("text-yellow-700 dark:text-yellow-500" if not project.get("status") else "text-green-500")
+                                    ).classes("p-1").classes(
+                                        "text-yellow-700 dark:text-yellow-500" if not project.get("status") else "text-green-500"
+                                    )
                                 Icon("edit", 'sm'
                                     ).classes("p-1 bg-primary rounded-sm cursor-pointer text-sm"
                                     ).on('click', lambda _,s=project.get("slug"):(navigate(f"/create/{s}",True) if s else None))
