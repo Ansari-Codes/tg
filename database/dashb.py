@@ -34,6 +34,7 @@ async def countProjects(item, by='owner'):
         return res
     if resp and len(resp) > 0:
         row = resp[0]
+        print(row)
         res.data = {
             "projs": row.get("total", 0),
             "draft": row.get("drafts", 0),
