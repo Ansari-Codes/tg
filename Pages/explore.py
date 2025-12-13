@@ -12,7 +12,7 @@ def proj(project: dict, js=None):
         Button(config=dict(icon="open_in_new"), link=f"/project/{slug}", new_tab=True).props("dense", remove="push").classes("px-1.5 h-fit")
     with RawRow().classes("w-full aspect-square border-[1px] border-[var(--q-secondary)] rounded-sm"):
         Html(f'<canvas id="t-{slug}-canvas" class="w-full h-full"></canvas>')
-        js.append(project.get("jscode","").replace("{{thumbnail}}", "true").replace("{{canvas}}", f"t-{slug}-canvas", 1)) #type:ignore
+        js.append(project.get("jscode","").replace("{{thumbnail}}", "true", 1).replace("{{canvas}}", f"t-{slug}-canvas", 1)) #type:ignore
     with RawRow().classes("w-full px-2 gap-1 items-center"):
         with RawRow().classes("w-fit font-bold items-center"):
             Icon("visibility", 'xs', 'yellow-600')

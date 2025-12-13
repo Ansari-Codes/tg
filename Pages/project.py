@@ -14,7 +14,7 @@ async def render(slug):
     data = project.data
 
     async def run():
-        ui.run_javascript(data.get("jscode", "").replace("{{canvas}}", "t-canvas", 1))
+        ui.run_javascript(data.get("jscode", "").replace("{{thumbnail}}", "false", 1).replace("{{canvas}}", "t-canvas", 1))
 
     async def stop():
         ui.run_javascript("window.is_running = false;")
@@ -58,19 +58,16 @@ async def render(slug):
                 ZOOM_PAN()
 
             # Right column: description
-            with RawCol().classes(
-                "w-full sm:w-full h-fit sm:h-full overflow-auto border-2 border-[var(--q-secondary)] rounded-md"
-            ):
-                with RawRow().classes("bg-secondary w-full p-1 text-xl text-left font-bold"):
-                    Label("Description")
-                ui.markdown(
-                    data.get("description", "No Description provided!"),
-                    extras=["fenced-code-blocks", "tables", "mermaid", "latex"]
-                ).classes("m-3 max-h-[60%] h-full overflow-auto bg-primary")
-                with ui.element().classes("w-full h-[30%] border-t-2 border-[var(--q-secondary)]"):
-                    likes = data.get("likes", "N/A")
-                    with RawRow().classes("w-fit h-fit items-center"):
-                        Icon("favorite", "sm", "red")
-                        Label(likes).classes("text-lg font-semibold text-red-500")
+            with RawCol().classes("w-full sm:w-full h-fit sm:h-full"):
+                with RawCol().classes(
+                    "w-full h-[70%] overflow-auto border-2 border-[var(--q-secondary)] rounded-md"
+                ):
+                    with RawRow().classes("bg-secondary w-full p-1 text-xl text-left font-bold"):
+                        Label("Description")
+                    ui.markdown(
+                        data.get("description", "No Description provided!"),
+                        extras=["fenced-code-blocks", "tables", "mermaid", "latex"]
+                    ).classes("m-1 max-h-[90%] h-full overflow-auto")
+                with ui.element().classes("w-full h-[25%] flex flex-row p-2 border-t-2 border-[var(--q-secondary)]"):pass
     else:
         Label("Error loading the project!").classes("text-2xl text-red font-bold")
