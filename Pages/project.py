@@ -57,17 +57,18 @@ async def render(slug):
                 # Enable zoom/pan
                 ZOOM_PAN()
 
-            # Right column: description
+            # Right column: description/Info
             with RawCol().classes("w-full sm:w-full h-fit sm:h-full"):
                 with RawCol().classes(
                     "w-full h-[70%] overflow-auto border-2 border-[var(--q-secondary)] rounded-md"
                 ):
-                    with RawRow().classes("bg-secondary w-full p-1 text-xl text-left font-bold"):
+                    with RawRow().classes("bg-secondary w-full max-h-[9%] p-1 text-xl text-left font-bold"):
                         Label("Description")
                     ui.markdown(
                         data.get("description", "No Description provided!"),
                         extras=["fenced-code-blocks", "tables", "mermaid", "latex"]
-                    ).classes("m-1 max-h-[90%] h-full overflow-auto")
-                with ui.element().classes("w-full h-[25%] flex flex-row p-2 border-t-2 border-[var(--q-secondary)]"):pass
+                    ).classes("m-1 h-full overflow-auto")
+                with ui.element().classes("w-full max-h-[90%] h-[25%] flex flex-row p-2 border-t-2 border-[var(--q-secondary)]"):
+                    Label(data.get("owner_name",""))
     else:
         Label("Error loading the project!").classes("text-2xl text-red font-bold")
