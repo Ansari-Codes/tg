@@ -27,8 +27,8 @@ async def dashbd(area):
             with Card().classes("h-fit"):
                 with RawCol().classes("w-full gap-1"):
                     Label(f"Total Likes").classes("text-lg font-bold")
-                    with RawRow().classes("w-full gap-1 text-red-500 items-center"):
-                        Icon("favorite", "lg");AddSpace()
+                    with RawRow().classes("w-full gap-1 text-blue-500 dark:text-blue-400 items-center"):
+                        Icon("thumb_up", "lg");AddSpace()
                         Label(likes).classes("text-4xl font-extrabold")
             with Card().classes("h-fit"):
                 with RawCol().classes("w-full gap-1"):

@@ -66,7 +66,7 @@ def proj(project: dict, del_proj=lambda i:()):
                 Icon("drafts", 'xs', 'yellow-600')
                 Label("Draft").classes("text-md text-yellow-600 dark:text-yellow ")
         with RawRow().classes("w-fit font-bold items-end"):
-            Icon("favorite", 'xs', 'red')
+            Icon("thumb_up", 'xs', 'red')
             Label(project.get("likes",0)).classes("text-md text-red")
 
 def sectionLabel(text):

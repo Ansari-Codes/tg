@@ -1,6 +1,6 @@
-from UI import Label, Button, RawCol, RawRow, ui, Html, Icon, AddSpace
+from UI import Label, Button, RawCol, RawRow, ui, Html, Icon, AddSpace, Notify
 from storage import getUserStorage, updateUserStorage
-from database.project import loadProjectWithOwner
+from database.project import loadProjectWithOwner, likeAProject, viewAProject, hasLiked
 from loading import showLoading
 from js import ZOOM_PAN
 import ENV
@@ -19,6 +19,47 @@ async def render(slug):
     async def stop():
         ui.run_javascript("window.is_running = false;")
 
+    async def likeProject():
+        if not like_button:return
+        like_button.set_enabled(False)
+        try:
+            likes = await likeAProject(data.get("id", None), getUserStorage().get("id", None))
+            d = likes.data
+            if likes.success:
+                like_label.set_text(d.get("likes", "N/A"))
+                data['likes'] = d.get("likes", 0)
+                Notify(d.get("action", "").title())
+                if d.get("action", "") == "liked":
+                    like_button.set_icon(icon="thumb_down")
+                    like_button.props("color='red'")
+                else:
+                    like_button.set_icon("thumb_up")
+            else:
+                Notify("An Error occured while liking!", type="negative")
+        finally:
+            like_button.set_enabled(True)
+
+    if project.success:
+        _ = await viewAProject(data.get("id", None), getUserStorage().get("id", None))
+        if _.success and not (_.meta.get("view", "") == "already viewed"):
+            data['views'] = _.data.get("views", 0)
+        elif (_.meta.get("view", "") == "already viewed"):
+            pass
+        else:
+            Notify(_.errors.get("view", "An error occured in viewing!"), type="negative")
+        hasliked = await hasLiked(data.get("id", None), getUserStorage().get("id", None))
+        like_button = Button(
+            on_click=likeProject, #type:ignore
+            config=dict(icon="thumb_up", color="blue"),
+        ).classes("w-fit mt-2")
+        if hasliked.success:
+            if bool(hasliked.data):
+                    like_button.set_icon(icon="thumb_down")
+                    like_button.props("color='red'")
+            else:
+                like_button.set_icon("thumb_up")
+    else:
+        like_button = None
     c.delete()
     with ui.header().classes("flex items-center"):
         Html(ENV.ICON + ENV.NAME).classes("text-xl font-bold")
@@ -31,7 +72,7 @@ async def render(slug):
 
             # Left column: buttons + canvas
             with RawCol().classes(
-                "w-full sm:w-full h-fit gap-2"
+                "w-full h-fit gap-2"
             ):
                 # Buttons row
                 with RawRow().classes("w-full gap-2 h-fit justify-start sm:justify-start items-center"):
@@ -56,19 +97,34 @@ async def render(slug):
 
                 # Enable zoom/pan
                 ZOOM_PAN()
+                with RawRow().classes(
+                    "w-full border-2 border-[var(--q-secondary)] rounded-md p-3 gap-2 bg-gray-50 flex-grow "
+                ) as lll:
+                    with ui.element().classes("h-full flex flex-grow border-r-2 border-[var(--q-primary)]"):
+                        with RawCol():
+                            Label(data.get('owner_name', 'Unknown').title()).classes("text-xl font-semibold")
+                            Label(data.get('owner_email', 'N/A')).classes("text-sm")
+                        with RawRow().classes("gap-4 text-sm"):
+                            with RawRow().classes("text-blue-500 dark:text-blue-400"):
+                                Icon("thumb_up")
+                                like_label = Label(data.get('likes', 0)).classes("text-xl")
+                            with RawRow().classes("text-yellow-800 dark:text-yellow-400"):
+                                Icon("visibility",)
+                                Label(data.get('views', 0)).classes("text-xl")
+                    if like_button:like_button.move(lll)
 
             # Right column: description/Info
-            with RawCol().classes("w-full sm:w-full h-fit sm:h-full"):
+            with RawCol().classes("w-full h-fit gap-2"):
                 with RawCol().classes(
-                    "w-full h-[70%] overflow-auto border-2 border-[var(--q-secondary)] rounded-md"
+                    "w-full overflow-auto border-2 border-[var(--q-secondary)] rounded-md"
                 ):
-                    with RawRow().classes("bg-secondary w-full max-h-[9%] p-1 text-xl text-left font-bold"):
+                    with RawRow().classes(
+                        "bg-secondary w-full p-2 text-lg font-bold"
+                    ):
                         Label("Description")
                     ui.markdown(
                         data.get("description", "No Description provided!"),
                         extras=["fenced-code-blocks", "tables", "mermaid", "latex"]
-                    ).classes("m-1 h-full overflow-auto")
-                with ui.element().classes("w-full max-h-[90%] h-[25%] flex flex-row p-2 border-t-2 border-[var(--q-secondary)]"):
-                    Label(data.get("owner_name",""))
+                    ).classes("p-2 overflow-auto")
     else:
         Label("Error loading the project!").classes("text-2xl text-red font-bold")

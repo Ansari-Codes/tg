@@ -2,7 +2,6 @@ from UI import Label, Header, Input, Button, TextArea, Dialog, Col, Row, AddSpac
 from UI.BASIC import Card, Notify, RawCol, RawRow
 from database.project import loadProject, updateProject, unique
 from js import ZOOM_PAN
-from storage import updateTabStorage as uts, getTabStorage as gts
 from models import Variable
 import cmath, math, random, statistics, numpy
 import decimal, fractions, itertools, functools, collections, colorsys
@@ -53,8 +52,7 @@ def exportCanvas():
     }}
     """)
 
-async def rename(d, title_model):
-    project = gts()
+async def rename(d, title_model, saver):
     d.clear()
     w = []
     async def _rname():
@@ -63,13 +61,10 @@ async def rename(d, title_model):
         if not (await unique(value, "title")): 
             Notify("Title already exists! Try different one!")
             for i in w: i.enable()
-            uts(project)
             return
         else: 
-            await updateProject({"id": gts().get("id"), "title": value})
+            await saver({"title": value})
             title_model.value = value
-            project['title'] = value
-            uts(project)
             d.close()
         for i in w: i.enable()
         Notify("Renamed!", color="success")
@@ -84,23 +79,19 @@ async def rename(d, title_model):
                     w.append(Button("Rename", _rname, config=dict(color="primary")))
     d.open()
 
-async def publish(d,ss,b):
-    project = gts()
+async def publish(d,ss,b,saver):
     d.clear()
     w = []
     async def _publish():
         value = desc.value.__str__().strip().lower()
         for i in w: i.disable()
-        await updateProject({"id": gts().get("id"), "description": value, "status": 1})
-        project['description'] = value
-        project['status'] = 1
-        uts(project)
+        await saver({"description": value, "status": 1})
         for i in w: i.enable()
         ss.set_content("<span class='text-green-500'>Public</span>")
         ss.update()
         d.close()
         Notify("Your project is now public!", color="success")
-        x = lambda _=None,d=d,s=ss:revertToDraft(d,s,b)
+        x = lambda _=None,d=d,s=ss:revertToDraft(d,s,b,saver)
         b.set_text("Revert")
         b.on_click(x)
     with d:
@@ -115,21 +106,17 @@ async def publish(d,ss,b):
                     w.append(Button("Publish", _publish, config=dict(color="primary")))
     d.open()
 
-async def revertToDraft(d, ss, b):
-    project = gts()
+async def revertToDraft(d, ss, b, saver):
     d.clear()
     w = []
     async def _draft():
         for i in w: i.disable()
-        await updateProject({"id": gts().get("id"), "status": 0})
+        await saver({"status": 0})
         for i in w: i.enable()
         ss.set_content("<span class='text-yellow-500'>Draft</span>")
-        project['status'] = 0
-        ss.update()
-        uts(project)
         d.close()
         Notify("Project reverted to draft!")
-        x = lambda _=None,d=d,s=ss:publish(d,s,b)
+        x = lambda _=None,d=d,s=ss:publish(d,s,b,saver)
         b.set_text("Publish")
         b.on_click(x)
     with d:
@@ -160,20 +147,19 @@ if (canvas) {
 }
         """)
 
-async def createFileMenu(d,tm,ss,saver):
+async def createFileMenu(d,tm,ss,saver,project):
     with Button("File") as bbbb:
-        project = gts()
         with ui.menu().classes("flex flex-col gap-1 p-2").props("auto-close"):
             Button("Save", saver).classes("w-full")
-            Button("Rename", lambda _=None,d=d,tm=tm:rename(d, tm)).classes("w-full")
+            Button("Rename", lambda _=None,d=d,tm=tm:rename(d, tm, saver)).classes("w-full")
             Button("Export Canvas", exportCanvas).classes("w-full")
             b = Button().classes("w-full")
             if project.get("status") in [1, "1"]:
-                x = lambda _=None,d=d,s=ss:revertToDraft(d,s,b)
+                x = lambda _=None,d=d,s=ss:revertToDraft(d,s,b,saver)
                 b.set_text("Revert")
                 b.on_click(x)
             else:
-                x = lambda _=None,d=d,s=ss:publish(d,s,b)
+                x = lambda _=None,d=d,s=ss:publish(d,s,b,saver)
                 b.set_text("Publish")
                 b.on_click(x)
     return bbbb
@@ -198,18 +184,28 @@ async def render(slug):
             return
     else:
         project = {}
-    project['status'] = project.get("status", "0").__str__()
-    uts(project)
     isSmallScreen = int(await ui.run_javascript("window.innerWidth")) < 500
     code = Variable()
     jscode = Variable()
+    def status_badge(status):
+        return (
+            "<span class='text-green-500'>Public</span>"
+            if int(status) == 1
+            else "<span class='text-yellow-500'>Draft</span>"
+        )
     async def save(extra=None):
         extra = extra or {}
-        pjt = {**project, "pycode": code.value.strip(), "jscode": jscode.value.strip(), **extra}
+        pjt = {
+            **project,
+            "pycode": code.value.strip(),
+            "jscode": jscode.value.strip(),
+        }
+        if "status" in extra:
+            pjt["status"] = extra["status"]
+        pjt.update(extra)
         n = ui.notification("Saving", position="bottom-left", color='primary', spinner=True, timeout=100)
         await updateProject(pjt)
         n.dismiss()
-        uts(pjt)
         Notify("Changes Saved!", color="success")
     async def run():
         if not code.value.strip(): return
@@ -283,18 +279,17 @@ async def render(slug):
         if e: printer_print(e, "text-lg text-yellow-800 font-bold")
     tm = Variable()
     tm.value = project.get("title","UnTitled")
-    sss = lambda x:"<span class='text-yellow-500'>Draft</span>" if not float(x) else "<span class='text-green-500'>Public</span>"
-    ss = Html(sss(project.get("status"))).classes("truncate text-lg h-full font-bold")
+    ss = Html(status_badge(project.get("status", 0))).classes("truncate text-lg h-full font-bold")
     with Header().classes("flex flex-row items-center") as header:
         if not isSmallScreen:
-            await createFileMenu(dialog, tm, ss,save)
+            await createFileMenu(dialog, tm, ss,save,project)
             await createEditMenu()
             Button("Run", run)
             Button("Stop", lambda: ui.run_javascript("window.is_running = false;"))
         else:
             with Button(config=dict(icon="menu")):
                 with ui.menu():
-                    (await createFileMenu(dialog, tm, ss,save)).classes("w-full")
+                    (await createFileMenu(dialog, tm, ss,save,project)).classes("w-full")
                     (await createEditMenu()).classes("w-full")
                     Button("Run", run).classes("w-full")
                     Button("Stop", lambda: ui.run_javascript("window.is_running = false;")).classes("w-full")
@@ -311,7 +306,7 @@ async def render(slug):
                     language='Python',
                     highlight_whitespace=True,
                     theme="githubLight",
-                    on_change=lambda x:uts({"pycode":str(x.value).strip()})
+                    on_change=lambda x:code.set(x.value.__str__().strip())
                 ).classes("w-full h-full")
                     t.bind_value(code)
                     code.value = project.get('pycode') #type:ignore
@@ -326,5 +321,5 @@ async def render(slug):
 </div>
             """).classes("w-full h-full overflow-hidden")
             ZOOM_PAN()
-    ui.run_javascript(project.get("jscode","").replace("{{canvas}}", "t-canvas", 1))
+    await run()
     c.delete()

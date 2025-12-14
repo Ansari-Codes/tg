@@ -122,6 +122,9 @@ async def loadProject(item, by="slug"):
         print(e)
         return res
     if project and project[0]:
+        prjt = project[0]
+        dict(prjt).pop("views", "")
+        dict(prjt).pop("likes", "")
         res.data = project[0]
     else:
         res.data = {}
@@ -192,6 +195,11 @@ async def deleteProject(id):
 
 async def likeAProject(project_id, liker_id):
     res = Response()
+    if not project_id:
+        res.errors['project_id'] = "project_id is required"
+    if not liker_id:
+        res.errors['liker_id'] = "liker_id is required"
+    if not res.success:return res
     try:
         query_check = f"""
         SELECT 1 FROM {LIKEDS}
@@ -237,9 +245,37 @@ async def likeAProject(project_id, liker_id):
         res.errors["like"] = "Cannot like project"
     return res
 
+async def hasLiked(project_id, liker_id):
+    res = Response()
+    if not project_id:
+        res.errors['project_id'] = "project_id is required"
+    if not liker_id:
+        res.errors['liker_id'] = "liker_id is required"
+    if not res.success:return res
+    try:
+        query_check = f"""
+        SELECT 1 FROM {LIKEDS}
+        WHERE project_id = {project_id} AND liker_id = {liker_id}
+        LIMIT 1;
+        """
+        existing = await RUN_SQL(query_check, to_fetch=True)
+        if existing:
+            res.data = existing[0]
+            return res
+        else:
+            res.data = {}
+            return res
+    except Exception as e:
+        res.errors['error'] = str(e)
+        return res
 
 async def viewAProject(project_id, viewer_id):
     res = Response()
+    if not project_id:
+        res.errors['project_id'] = "project_id is required"
+    if not viewer_id:
+        res.errors['viewer_id'] = "viewer_id is required"
+    if not res.success:return res
     try:
         query_check = f"""
         SELECT 1 FROM {VIEWEDS}
@@ -248,7 +284,7 @@ async def viewAProject(project_id, viewer_id):
         """
         existing = await RUN_SQL(query_check, to_fetch=True)
         if existing:
-            res.errors['view'] = "already viewed"
+            res.meta['view'] = "already viewed"
             return res
         else:
             query_insert = f"""

@@ -18,11 +18,11 @@ def proj(project: dict, js=None):
             Icon("visibility", 'xs', 'yellow-600')
             Label(project.get("views", 0)).classes("text-md text-yellow-600 dark:text-yellow ")
         with RawRow().classes("w-fit font-bold items-center"):
-            Icon("favorite", 'xs', 'red')
-            Label(project.get("likes",0)).classes("text-md text-red")
+            Icon("thumb_up", 'xs', 'blue')
+            Label(project.get("likes",0)).classes("text-md text-blue-500")
         with RawRow().classes("font-bold items-center"):
             Icon("person", "xs", "primary")
-            Label(project.get("owner_name", "Anonymous").title()).classes("text-priamry text-md")
+            Label(project.get("owner_name", "Anonymous").title()).classes("text-primary text-md")
 
 def sectionLabel(text):
     return Label(text).classes("w-full text-md font-semibold")
