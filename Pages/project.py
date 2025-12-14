@@ -21,6 +21,9 @@ async def render(slug):
 
     async def likeProject():
         if not like_button:return
+        if not getUserStorage().get("id"): 
+            Notify("LogIn first to like!")
+            return
         like_button.set_enabled(False)
         try:
             likes = await likeAProject(data.get("id", None), getUserStorage().get("id", None))
