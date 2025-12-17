@@ -12,6 +12,7 @@ async def render(slug):
 
     project = await loadProjectWithOwner(slug)
     data = project.data
+    print(project)
 
     async def run():
         ui.run_javascript(data.get("jscode", "").replace("{{thumbnail}}", "false", 1).replace("{{canvas}}", "t-canvas", 1))
@@ -44,6 +45,7 @@ async def render(slug):
 
     if project.success:
         _ = await viewAProject(data.get("id", None), getUserStorage().get("id", None))
+        print(_)
         if _.success and not (_.meta.get("view", "") == "already viewed"):
             data['views'] = _.data.get("views", 0)
         elif (_.meta.get("view", "") == "already viewed"):

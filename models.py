@@ -3,12 +3,31 @@ from storage import getUserStorage, getThemeStorage
 
 class Response:
     def __init__(self):
-        self.data:dict = dict()
-        self.errors = dict()
-        self.meta = dict()
+        self.data:dict = {}
+        self.errors = {}
+        self.meta = {}
     @property
     def success(self):
         return not self.errors
+    def _kv_to_str(self, k, v):
+        return f"{k}: {v}"
+    def _dict_to_str(self, dct):
+        if isinstance(dct, dict):
+            data = [dct]
+        else:
+            data = dct
+        return '\t\n'.join(
+            self._kv_to_str(k, v)
+            for d in data
+            for k, v in d.items()
+        )
+    def __str__(self) -> str:
+        return f"""
+    META: \n\t{self._dict_to_str(self.meta)}
+    SUCCESS: \n\t{self.success}
+    DATA: \n\t{self._dict_to_str(self.data)}
+    ERRORS: \n\t{self._dict_to_str(self.errors)}
+    """
 
 class Variable:
     def __init__(self, value="") -> None:
