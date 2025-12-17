@@ -3,28 +3,34 @@ from fastapi.responses import Response
 from fastapi.requests import Request
 from uuid import uuid4
 from db import RUN_SQL, SESSIONS
-from datetime import datetime, timedelta, timezone
 from database.dashb import getUser
+import time
 
 async def saveCookie(value, userId, max_age):
-    expires_at = (datetime.now(timezone.utc) + timedelta(seconds=max_age)).isoformat()
+    expires_at = (time.time() + max_age)
     try:
-        await RUN_SQL(f"""INSERT INTO {SESSIONS} ( session_token , user , expires_at )
-                    VALUES ( '{value}' , {userId}, '{expires_at}' )""")
+        query = f"""INSERT INTO {SESSIONS} (session_token, user, expires_at)
+                    VALUES ('{value}', {userId}, {expires_at});"""
+        res = await RUN_SQL(query)
+        print("Query executed successfully:", query)
+        print("Result:", res)
         return True
     except Exception as e:
+        print("Error saving cookie:", str(e))
         return False
 
-async def getCookie(userId: int, token: str):
+async def getCookie(token: str):
     try:
         res = await RUN_SQL(
-            f"SELECT * FROM {SESSIONS} WHERE user={userId} AND session_token='{token}';",
+            f"SELECT * FROM {SESSIONS} WHERE session_token='{token}';",
         )
+        print("GetCookie: \n", res)
         if res and res[0]:
-            expires_at = datetime.fromisoformat(res[0]['expires_at'])
-            if datetime.now(timezone.utc) > expires_at:
+            expires_at = float(res[0]['expires_at'])
+            if time.time() > expires_at:
+                await RUN_SQL(f"DELETE FROM {SESSIONS} WHERE session_token='{token}';")
                 return None, {}
-            user = await getUser(userId)
+            user = await getUser(res[0]['user'])
             if user.success:
                 user = user.data
                 return True, user[0]
@@ -37,7 +43,7 @@ async def getCookie(userId: int, token: str):
 @app.post('/set/cookie/{id}')
 async def set_cookie(res: Response, id: int):
     id = int(id)
-    age = 10 * 60 * 60 * 24
+    age = 15 * 60 * 60 * 24
     value = uuid4().__str__()
     await saveCookie(value, id, age)
     res.set_cookie(
@@ -50,12 +56,12 @@ async def set_cookie(res: Response, id: int):
         max_age=age
     )
 
-@app.get('/get/cookie/{id}')
-async def get_cookie(req: Request, id: int):
+@app.get('/get/cookie')
+async def get_cookie(req: Request):
     token = req.cookies.get("auth_token")
     if not token:
         return {"authenticated": False}
-    valid, session = await getCookie(id, token)
+    valid, session = await getCookie(token)
     if valid is None:
         return {"authenticated": False, "error": "Session Expired!"}
     elif valid:

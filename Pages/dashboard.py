@@ -2,7 +2,6 @@ from UI import Label, Input, Button, Icon, RawCol, RawRow, Card, AddSpace, Heade
 from ENV import NAME, ICON
 from models import Variable
 from database.project import createEmtpyProject, getAllProjects
-from storage import getUserStorage as gts, updateUserStorage as uts, userID
 from .Dashboard import *
 from loading import showLoading
 
@@ -23,7 +22,6 @@ async def changePage(area:ui.element, var:Variable, name:str, triggerer=None):
         finally:
             if triggerer:
                 for t in triggerer:t.set_enabled(True)
-        uts({"tab": name})
 
 def createDrawer(area,var):
     with ui.drawer('left').classes("bg-primary") as drawer:
@@ -77,4 +75,4 @@ async def render():
     page_layout = context.client.layout
     page_layout.props(remove='view', add='view="lHh lpR lFf"')
     loading.delete()
-    await changePage(area, var, gts().get("tab", "dashboard"),bs)
+    await changePage(area, var, "dashboard",bs)

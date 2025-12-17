@@ -103,6 +103,7 @@ async def DROP():
         "DROP TABLE IF EXISTS comments;",
         "DROP TABLE IF EXISTS projects;",
         "DROP TABLE IF EXISTS users;",
+        "DROP TABLE IF EXISTS sessions;",
         "DROP TABLE IF EXISTS likeds;",
         "DROP TABLE IF EXISTS vieweds;"
     ])

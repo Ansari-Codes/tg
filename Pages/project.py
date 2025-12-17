@@ -1,5 +1,5 @@
 from UI import Label, Button, RawCol, RawRow, ui, Html, Icon, AddSpace, Notify
-from storage import getUserStorage, updateUserStorage
+from storage import getUserStorage
 from database.project import loadProjectWithOwner, likeAProject, viewAProject, hasLiked
 from loading import showLoading
 from js import ZOOM_PAN
