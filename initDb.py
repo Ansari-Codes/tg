@@ -11,6 +11,17 @@ CREATE TABLE IF NOT EXISTS users (
 );
 """
 
+CREATE_SESSIONS_TABLE = """
+CREATE TABLE IF NOT EXISTS sessions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user INTEGER NOT NULL,
+    session_token TEXT UNIQUE NOT NULL,
+    expires_at DATETIME NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user) REFERENCES users(id)
+);
+"""
+
 CREATE_PROJECTS_TABLE = """
 CREATE TABLE IF NOT EXISTS projects (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -73,6 +84,8 @@ from db import RUN_SQL
 async def CreateTables():
     await RUN_SQL(CREATE_USERS_TABLE)
     print("cli.py: created users table")
+    await RUN_SQL(CREATE_SESSIONS_TABLE)
+    print("cli.py: created sessions table")
     await RUN_SQL(CREATE_PROJECTS_TABLE)
     print("cli.py: created projects table")
     await RUN_SQL(CREATE_COMMENTS_TABLE)

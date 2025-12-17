@@ -13,6 +13,7 @@ if not (API_URL or PASSWORD):
 q = 0
 
 USERS = "users"
+SESSIONS = "sessions"
 PROJECTS = "projects"
 COMMENTS = "comments"
 LIKEDS = "likeds"
