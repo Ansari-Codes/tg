@@ -8,7 +8,10 @@ async def dashbd(area,user):
     area.clear()
     loading = showLoading("Dashboard", True).classes("w-full h-full")
     await ui.context.client.connected()
-    def userID():user.get("id")
+    def userID():
+        return user.get("id")
+    print("dashb", user)
+    print(userID())
     pr = (await countProjects(userID()))
     p = pr.data
     projects = p.get("projs","N/A") or "0"

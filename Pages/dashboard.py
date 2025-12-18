@@ -23,7 +23,7 @@ async def changePage(area:ui.element, var:Variable, name:str, triggerer=None, us
             if triggerer:
                 for t in triggerer:t.set_enabled(True)
 
-def createDrawer(area,var):
+def createDrawer(area,var,user):
     with ui.drawer('left').classes("bg-primary") as drawer:
         Label(ICON + NAME).classes("text-2xl w-full text-center font-bold border-b-[1px]")
         btns = {
@@ -39,10 +39,10 @@ def createDrawer(area,var):
             for name, kw in btns.items():
                 b = Button(name, config=kw).classes("w-full bg-secondary").props('align="left"')
                 bs.append((lambda b=b: b)())
-                b.on_click(lambda _,name=name,b=bs: changePage(area, var, name, b))
+                b.on_click(lambda _,name=name,b=bs: changePage(area, var, name, b,user))
             sb = Button("Settings", config=dict(icon="settings")).classes("w-full bg-secondary").props('align="left"')
             bs.append(sb)
-            sb.on_click(lambda bs=bs:changePage(area, var, "settings",bs))
+            sb.on_click(lambda bs=bs:changePage(area, var, "settings",bs,user))
         return drawer, bs
 
 import asyncio
@@ -72,7 +72,7 @@ async def render(token):
         Label("")
     header.classes("p-2 m-0")
     area = ui.element().classes("w-full")
-    dbs = createDrawer(area, var)
+    dbs = createDrawer(area, var,user)
     drawer = dbs[0]
     bs = dbs[-1]
     d.append(drawer)

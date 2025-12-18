@@ -7,14 +7,14 @@ async def getCurrentUser(token):
         res.errors["ad"] = "as"
         return res
     try:
-        session = await RUN_SQL(f"SELECT * FROM {SESSIONS} WHERE session_token='{token}';")
+        session = await RUN_SQL(f"SELECT * FROM {SESSIONS} WHERE session_token='{token}';", to_fetch=True)
         print("getCurrectUser: ", session)
         if session:
             id  = session[0].get("user")
             if not id:
                 res.errors['id'] = "Cannot fetch the user!"
                 return res
-            user = await RUN_SQL(f"SELECT * FROM {USERS} WHERE id={id};")
+            user = await RUN_SQL(f"SELECT * FROM {USERS} WHERE id={id};", to_fetch=True)
             res.data = user[0] if user else {}
             return res
         else:

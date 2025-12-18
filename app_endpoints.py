@@ -27,7 +27,8 @@ async def deleteCookie(value):
 async def getCookie(token: str):
     try:
         res = await RUN_SQL(
-            f"SELECT * FROM {SESSIONS} WHERE session_token='{token}';",
+            f"SELECT * FROM {SESSIONS} WHERE session_token='{token}';"
+            , to_fetch=True
         )
         print("GetCookie: \n", res)
         if res and res[0]:

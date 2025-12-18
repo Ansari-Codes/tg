@@ -86,7 +86,8 @@ async def projects(area,user):
         new.enable()
     async def del_proj(id):
         await _del_prject(id,dialog, updateProjects)
-    def userID():user.get("id")
+    def userID():
+        return user.get("id")
     async def updateProjects(filters: dict | None = None):
         c.clear()
         filters = filters or {}
