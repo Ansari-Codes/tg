@@ -5,16 +5,19 @@ from Pages.dashboard import render as rd
 from Pages.create import render as rc
 from Pages.explore import render as re
 from Pages.project import render as rp
-from storage import getUserStorage
 from UI import navigate, INIT_THEME
 from ENV import ui
-
-def auth(): return getUserStorage().get("auth",False)
+from fastapi import Request, Response
+from fastapi.responses import RedirectResponse, HTMLResponse
+from app_endpoints import RUN_SQL, saveCookie, uuid4, deleteCookie
+from loading import showLoading
 
 @ui.page("/")
-async def cw(): 
+async def cw(request: Request): 
     INIT_THEME()
-    await rw()
+    token = request.cookies.get("auth_token")
+    print("Auth token Dashboard:", token)
+    await rw(token)
 
 @ui.page("/explore")
 async def cb(): 
@@ -27,33 +30,78 @@ async def cp(slug: str):
     await rp(slug)
 
 @ui.page("/signup")
-async def csp(redirectTo: str = '/dashboard'):
-    print("SignUp: ", getUserStorage()) 
+async def css(redirectTo: str = '/dashboard', request: Request = None, res: Response = None): #type:ignore
     INIT_THEME()
-    if not auth(): await rs(redirectTo)
+    if request:
+        token = request.cookies.get("auth_token")
+        print("Auth token SignUp:", token)
+    else:
+        token = None
+    if not token : await rs(redirectTo,response=res)
     else: navigate(redirectTo)
 
 @ui.page("/login")
-async def csl(redirectTo: str = '/dashboard'):
-    print("Login: ", getUserStorage()) 
+async def csl(redirectTo: str = '/dashboard', request: Request = None, res: Response = None): #type:ignore
     INIT_THEME()
-    if not auth(): await rl(redirectTo)
+    if request:
+        token = request.cookies.get("auth_token")
+        print("Auth token LogIn:", token)
+    else:
+        token = None
+    if not token : await rl(redirectTo,response=res)
     else: navigate(redirectTo)
 
+@ui.page("/set-cookie/{id}")
+async def set_cookie(id: int, redirectTo: str = '/dashboard'):
+    res = RedirectResponse(redirectTo, status_code=200)
+    id = int(id)
+    age = 15 * 60 * 60 * 24
+    value = uuid4().__str__()
+    c = showLoading("")
+    try:
+        await saveCookie(value, id, age)
+    except Exception as e:
+        return HTMLResponse(f"<span style='color: red;font-size:100px;'>An error occured!</span><br><span style='color: gray;font-size:15px;'>{e}</span>")
+    res.set_cookie(
+        key="auth_token",
+        value=value,
+        httponly=True,
+        secure=False,
+        samesite="lax",
+        path="/",
+        max_age=age
+    )
+    return res
+
+@ui.page("/clear-cookie")
+async def del_cookie(request:Request):
+    res = RedirectResponse('/', status_code=200)
+    value = request.cookies.get("auth_token")
+    if value is None: return res
+    c = showLoading("")
+    try:
+        await deleteCookie(value)
+    except Exception as e:
+        return HTMLResponse(f"<span style='color: red;font-size:100px;'>An error occured!</span><br><span style='color: gray;font-size:15px;'>{e}</span>")
+    res.delete_cookie("auth_token")
+    return res
+
 @ui.page("/dashboard")
-async def cd():
-    print("Dashboard: ", getUserStorage()) 
+async def cd(request: Request):
     INIT_THEME()
-    if auth(): await rd() # type: ignore
-    else: navigate(f"/login?redirectTo=/dashboard")
+    token = request.cookies.get("auth_token")
+    print("Auth token Dashboard:", token)
+    if token: await rd(token) #type:ignore
+    else: navigate("/login?redirectTo=/dashboard")
 
 @ui.page("/create/{slug}")
-async def cc(slug: str):
-    print("Creator: ", getUserStorage()) 
+async def cc(slug: str, request: Request):
     INIT_THEME()
-    if auth(): await rc(slug)
+    token = request.cookies.get("auth_token")
+    print("Auth token Editor:", token)
+    if token: await rc(slug,token) #type:ignore
     else: navigate(f"/login?redirectTo=/create/{slug}")
 
-@ui.page("/create")
-async def ccc():
-    await rc(slug=None)
+# @ui.page("/create")
+# async def ccc():
+#     await rc(slug=None)

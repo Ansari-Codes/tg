@@ -1,19 +1,10 @@
 from ENV import app, client
 
 def getUserStorage() -> dict:
-    response = client.get("/get/cookie")
-    if response.status_code == 200:
-        return response.json()
     return {}
 
 def updateUserStorage(data: dict, clear=False) -> dict:
-    user_id = data.get("id")
-    if not user_id:
-        raise ValueError("User ID is required to update storage.")
-    response = client.post(f"/set/cookie/{user_id}")
-    if response.status_code == 200:
-        return {"success": True}
-    return {"success": False, "error": response.text}
+    return {"success": False}
 
 def clearUserStorage():updateUserStorage({},True)
 

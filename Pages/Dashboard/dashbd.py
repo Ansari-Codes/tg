@@ -1,13 +1,14 @@
 from UI import Label, Input, Card, Col, Row, RawCol, RawRow, TextArea, Link, Button, Html, Icon, Notify, ui, AddSpace, navigate
 from database.dashb import getUser, countProjects, getLatestProjects, getAllProjectsWithoutPaginationOrSearch
-from storage import getUserStorage, userID
 from loading import showLoading
 from plotly.graph_objects import Figure, Scatter
+from database.session import getCurrentUser
 
-async def dashbd(area):
+async def dashbd(area,user):
     area.clear()
     loading = showLoading("Dashboard", True).classes("w-full h-full")
-    user = getUserStorage()
+    await ui.context.client.connected()
+    def userID():user.get("id")
     pr = (await countProjects(userID()))
     p = pr.data
     projects = p.get("projs","N/A") or "0"

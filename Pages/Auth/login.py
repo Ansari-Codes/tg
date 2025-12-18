@@ -28,7 +28,7 @@ async def lgn(iv, pv, ie, pe, l):
     Notify("Access granted!", type='positive')
     navigate(l)
 
-async def render(l='/dashboard'):
+async def render(l='/dashboard', response=None):
     iv = Variable("")   # display name
     pv = Variable("")   # password
     ie = Variable("")

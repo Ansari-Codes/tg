@@ -1,6 +1,7 @@
-from UI import Label, Header, Input, Button, TextArea, Dialog, Col, Row, AddSpace, Html, Logger, ui
+from UI import Label, Header, Input, Button, TextArea, Dialog, Col, Row, AddSpace, Html, Logger, ui, navigate
 from UI.BASIC import Card, Notify, RawCol, RawRow
 from database.project import loadProject, updateProject, unique
+from database.session import getCurrentUser
 from js import ZOOM_PAN
 from models import Variable
 import cmath, math, random, statistics, numpy
@@ -170,11 +171,14 @@ async def createEditMenu():
             Button("Clear Canvas", clearCanvas).classes("w-full")
     return b
 
-async def render(slug):
+async def render(slug,token):
     c = showLoading("Editor")
     context = ui.context.client
     dialog = Dialog()
     await context.connected()
+    res = await getCurrentUser(token)
+    if not res.success:
+        navigate("/login?redirectTo=/dashboard")
     if slug:
         projec = await loadProject(slug)
         project:dict = projec.data

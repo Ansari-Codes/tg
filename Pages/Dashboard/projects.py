@@ -2,7 +2,6 @@ from UI import Label, Input, Button, Icon, RawCol, RawRow, Card, Html, Choice, A
 from ENV import NAME, ICON
 from models import Variable
 from database.project import createEmtpyProject, getAllProjects, deleteProject
-from storage import getUserStorage, userID
 from loading import showLoading
 
 async def _ask_new_project():
@@ -75,7 +74,7 @@ def proj(project: dict, del_proj=lambda i:()):
 def sectionLabel(text):
     return Label(text).classes("w-full text-md font-semibold")
 
-async def projects(area):
+async def projects(area,user):
     __w = []
     page = Variable(1) # type: ignore
     per_page = Variable(50) # type: ignore
@@ -87,6 +86,7 @@ async def projects(area):
         new.enable()
     async def del_proj(id):
         await _del_prject(id,dialog, updateProjects)
+    def userID():user.get("id")
     async def updateProjects(filters: dict | None = None):
         c.clear()
         filters = filters or {}

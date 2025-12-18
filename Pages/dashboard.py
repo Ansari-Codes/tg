@@ -1,11 +1,11 @@
 from UI import Label, Input, Button, Icon, RawCol, RawRow, Card, AddSpace, Header, Dialog, navigate, Notify, ui
 from ENV import NAME, ICON
+from database.session import getCurrentUser
 from models import Variable
-from database.project import createEmtpyProject, getAllProjects
 from .Dashboard import *
 from loading import showLoading
 
-async def changePage(area:ui.element, var:Variable, name:str, triggerer=None):
+async def changePage(area:ui.element, var:Variable, name:str, triggerer=None, user=None):
     area.clear()
     name = name.lower()
     with area:
@@ -13,8 +13,8 @@ async def changePage(area:ui.element, var:Variable, name:str, triggerer=None):
         if triggerer:
             for t in triggerer:t.set_enabled(False)
         try:
-            if name == 'dashboard': await dashbd(area) #type:ignore
-            elif name == 'projects': await projects(area)
+            if name == 'dashboard': await dashbd(area,user) #type:ignore
+            elif name == 'projects': await projects(area,user)
             elif name == 'analytics': await analytics(area)
             elif name == 'settings': await settings(area)
         except Exception as e:
@@ -47,7 +47,7 @@ def createDrawer(area,var):
 
 import asyncio
 
-async def render():
+async def render(token):
     loading = showLoading("Dashboard").classes("w-full h-[73vh]")
     var = Variable()
     d = []
@@ -55,6 +55,10 @@ async def render():
         if d:d[0].toggle()
     context = ui.context
     await context.client.connected()
+    res = await getCurrentUser(token)
+    if not res.success:
+        navigate("/login?redirectTo=/dashboard")
+    user = res.data
     await asyncio.sleep(2)
     with Header() as header:
         Icon('menu','md').on('click', toggle).classes(
@@ -75,4 +79,4 @@ async def render():
     page_layout = context.client.layout
     page_layout.props(remove='view', add='view="lHh lpR lFf"')
     loading.delete()
-    await changePage(area, var, "dashboard",bs)
+    await changePage(area, var, "dashboard",bs,user)

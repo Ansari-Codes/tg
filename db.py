@@ -36,6 +36,14 @@ async def RUN_SQL(query: str, to_fetch: bool = False):
     except httpx.RequestError as e: raise
     except Exception as e: raise e
     finally: print(f"DB: {q}: Query ran!")
+async def rawRUN_SQL(query: str, to_fetch: bool = True):
+    payload = {"query": query, "to_fetch": to_fetch, "name": name, "password":PASSWORD, "purpose":"db"}
+    async with httpx.AsyncClient(timeout=10) as client:
+        response = await client.post(API_URL, json=payload)
+        response.raise_for_status()
+        res = response.json()
+        if res.get("success"): return res
+        else: raise Exception(res.get("error"))
 f = 0
 async def GET_FILE(file):
     global f

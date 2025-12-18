@@ -2,7 +2,9 @@
 from UI import Card, Center, Input, Label, Row, Col, RawCol, RawRow, AddSpace, CheckBox, Notify, Button, navigate
 from models import Variable
 from database.auth import signup
-from storage import getUserStorage, updateUserStorage
+from app_endpoints import saveCookie
+import uuid
+from nicegui import context
 
 def validate(nv, mv, pv, cv, ne, me, pe):
     """
@@ -48,7 +50,7 @@ def validate(nv, mv, pv, cv, ne, me, pe):
     # all checks passed
     return True
 
-async def sup(nv, mv, pv, cv, ne, me, pe, l):
+async def sup(nv, mv, pv, cv, ne, me, pe, l, response):
     if not validate(nv, mv, pv, cv, ne, me, pe):
         return
 
@@ -72,11 +74,28 @@ async def sup(nv, mv, pv, cv, ne, me, pe, l):
     # success UI feedback (you can customize)
     res.data['auth'] = True
     print("SignUp:", res.data)
-    updateUserStorage(res.data)
-    Notify("Account created!", type='positive')
-    navigate(l)
+    if res.data.get("id") is None:
+        return Notify("Error in creating account!", type="negative")
+    id = int(res.data.get("id",0))
+    # age = 15 * 60 * 60 * 24
+    # value = uuid.uuid4().__str__()
+    # success = await saveCookie(value, id, age)
+    # if not success:
+    #     return Notify("Error in creating account!", type="negative")
+    # response.set_cookie(
+    #     key="auth_token",
+    #     value=value,
+    #     httponly=True,
+    #     secure=False,
+    #     samesite="lax",
+    #     path="/",
+    #     max_age=age
+    # )
+    navigate(f"/set-cookie/{id}?redirectTo=/dashboard")
+    # Notify("Account created!", type='positive')
+    # navigate(l)
 
-async def render(l='/dashboard'):
+async def render(l='/dashboard', response=None):
     nv = Variable("")   # display name
     mv = Variable("")   # email
     pv = Variable("")   # password
@@ -88,7 +107,7 @@ async def render(l='/dashboard'):
     async def sp():
         for i in widgets:
             i.set_enabled(False)
-        try: await sup(nv, mv, pv, cv, ne, me, pe, l)
+        try: await sup(nv, mv, pv, cv, ne, me, pe, l, response)
         finally:
             for i in widgets:
                 i.set_enabled(True)
