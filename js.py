@@ -43,4 +43,60 @@ wrapper.addEventListener("mousemove", (e) => {
 // ---------- Mouse Up → Stop Panning ----------
 wrapper.addEventListener("mouseup", () => isPanning = false);
 wrapper.addEventListener("mouseleave", () => isPanning = false);
+// -----------------------------------------------
+
+// For panning with one finger
+let lastTouchX, lastTouchY;
+
+wrapper.addEventListener("touchstart", (e) => {
+    if (e.touches.length === 1) {  // single finger → pan
+        isPanning = true;
+        lastTouchX = e.touches[0].clientX - originX;
+        lastTouchY = e.touches[0].clientY - originY;
+    }
+});
+
+wrapper.addEventListener("touchmove", (e) => {
+    if (!isPanning || e.touches.length !== 1) return;
+    e.preventDefault(); // prevent scrolling
+
+    originX = e.touches[0].clientX - lastTouchX;
+    originY = e.touches[0].clientY - lastTouchY;
+
+    canvas.style.transform = `translate(${originX}px, ${originY}px) scale(${scale})`;
+});
+
+wrapper.addEventListener("touchend", () => {
+    isPanning = false;
+});
+
+// For pinch zoom (two fingers)
+let initialDistance = 0;
+wrapper.addEventListener("touchstart", (e) => {
+    if (e.touches.length === 2) {
+        isPanning = false; // disable single-finger pan
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        initialDistance = Math.hypot(dx, dy);
+    }
+});
+
+wrapper.addEventListener("touchmove", (e) => {
+    if (e.touches.length === 2) {
+        e.preventDefault();
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const newDistance = Math.hypot(dx, dy);
+
+        const zoomFactor = newDistance / initialDistance;
+        scale *= zoomFactor;
+        scale = Math.max(0.2, Math.min(scale, 5));
+
+        // Update distance for next move
+        initialDistance = newDistance;
+
+        canvas.style.transform = `translate(${originX}px, ${originY}px) scale(${scale})`;
+    }
+});
+
 """)

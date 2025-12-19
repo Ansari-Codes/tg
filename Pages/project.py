@@ -1,4 +1,4 @@
-from UI import Label, Button, RawCol, RawRow, ui, Html, Icon, AddSpace, Notify
+from UI import Label, Button, RawCol, RawRow, ui, Html, Icon, AddSpace, Notify, navBar
 from database.project import loadProjectWithOwner, likeAProject, viewAProject, hasLiked
 from database.session import getCurrentUser
 from loading import showLoading
@@ -9,11 +9,17 @@ async def render(slug, token):
     c = showLoading(f"Project: {slug}")
     context = ui.context.client
     await context.connected()
-
+    if not token:
+        d = ui.dialog().props("persistent")
+        with d:
+            with ui.card():
+                Label("Login first to view the Project!").classes("text-lg font-bold")
+                Button("Login", link=f"/login?redirectTo=/project/{slug}")
+        d.open()
+        return
     project = await loadProjectWithOwner(slug)
     user = await getCurrentUser(token)
     data = project.data
-    print(project)
     def userID():
         return user.data.get("id")
 
@@ -73,8 +79,7 @@ async def render(slug, token):
     with ui.header().classes("flex items-center"):
         Html(ENV.ICON + ENV.NAME).classes("text-xl font-bold")
         AddSpace()
-        Button("Explore").props("href='/explore' target='_blank'")
-        Button("Dashboard").props("href='/dashboard' target='_blank'")
+        navBar({"Explore": {"link": "/explore", "new_tab":False}, "Dashboard": {"link": "/dashboard", "new_tab":False}})
 
     if project.success:
         with ui.element().classes("w-full h-full flex flex-col sm:grid sm:grid-cols-2 gap-2 px-1 lg:px-[10vw]"):

@@ -199,24 +199,28 @@ def confirm(statement="", on_yes=None, on_no=None):
                 Button("No", config=dict(icon='close'), on_click=on_no or d.delete)
     return d
 
-def navBar(icon = "", links:dict|None = None, bkp="sm"):
+def navBar(links: dict | None = None, bkp="sm"):
+    links = links or {}
+    norm_links = {}
+    for name, opts in links.items():
+        if not isinstance(opts, dict):
+            norm_links[name] = {"link": opts, "cond": True}
+        else:
+            norm_links[name] = opts.copy()
+
     with ui.element().classes("w-fit h-fit") as nav:
+        # Desktop
         with ui.element().classes(f"items-center justify-between gap-2 hidden {bkp}:!flex", remove='hidden') as desktop:
-            for name,opts in (links or {}).items():
-                if isinstance(opts, (dict)):
-                    condition = opts.pop("cond", True)
-                    if condition:
-                        Button(name, **opts)
-                else:
-                    Button(name, link=opts)
+            for name, opts in norm_links.items():
+                if opts.get("cond", True):  # use get instead of pop
+                    Button(name, **{k: v for k, v in opts.items() if k != "cond"})
+
+        # Mobile
         with Button(config=dict(icon="menu")).classes(f"flex {bkp}:hidden") as mobile:
             with ui.menu().props("auto-close"):
                 with RawCol().classes("w-fit gap-1 p-1 bg-secondary"):
-                    for name,opts in (links or {}).items():
-                        if isinstance(opts, (dict)):
-                            condition = opts.pop("cond", True)
-                            if condition:
-                                Button(name, **opts).classes("w-full")
-                        else:
-                            Button(name, link=opts).classes("w-full")
+                    for name, opts in norm_links.items():
+                        if opts.get("cond", True):  # again, just read
+                            Button(name, **{k: v for k, v in opts.items() if k != "cond"}).classes("w-full")
+
     return nav, desktop, mobile

@@ -1,14 +1,11 @@
 from os import path, environ
 from nicegui import ui, app
-from fastapi.testclient import TestClient
-import uuid
 
 PROD = False
 
 HOST = '0.0.0.0'
 PORT = int(environ.get("PORT", 8000))
 SECRET = str("my-secret-key-is-that-with-fixed-host-but-random-port")
-client = TestClient(app, f"http://localhost:{PORT}")
 
 NAME = "TurtleGraphics"
 ICON = "🐢"
