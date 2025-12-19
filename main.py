@@ -7,6 +7,5 @@ ENV.ui.run(
     port=ENV.PORT, 
     title=ENV.NAME, 
     favicon=ENV.ICON, 
-    storage_secret=ENV.SECRET,
-    on_air=True
+    storage_secret=ENV.SECRET
 )
