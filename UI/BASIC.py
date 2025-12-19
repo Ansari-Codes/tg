@@ -11,6 +11,7 @@ def INIT_THEME():
     #     ui.colors(**THEME)
     #     updateThemeStorage(THEME.copy())
     # return getThemeStorage()
+    ui.colors(**THEME)
     pass
 
 def Label(text="", model=None, model_configs=None):

@@ -39,7 +39,7 @@ async def css(redirectTo: str = '/dashboard', request: Request = None, res: Resp
         print("Auth token SignUp:", token)
     else:
         token = None
-    if not token : await rs(redirectTo,response=res)
+    if not token : await rs(redirectTo,response=res) #type:ignore
     else: navigate(redirectTo)
 
 @ui.page("/login")
@@ -68,7 +68,7 @@ async def set_cookie(id: int, redirectTo: str = '/dashboard'):
         key="auth_token",
         value=value,
         httponly=True,
-        secure=False,
+        secure=True,
         samesite="lax",
         path="/",
         max_age=age

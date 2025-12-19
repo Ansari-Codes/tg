@@ -11,4 +11,5 @@ async def render(token):
     auth = res.success
     w.delete()
     await compLayout.CompHeader(auth)
+    await compLayout.CompHero(auth)
     await compLayout.CompFooter(auth)

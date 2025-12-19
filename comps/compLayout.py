@@ -1,4 +1,4 @@
-from UI import Header, Label, Html, Button, AddSpace, Footer, Link, navigate, navBar
+from UI import Header, Label, Html, Button, AddSpace, Footer, Link, navigate, navBar, Card, Col, RawCol, RawRow, Row
 from ENV import NAME, ICON
 
 async def CompHeader(auth):
@@ -14,6 +14,12 @@ async def CompHeader(auth):
         links['LogOut'] = {"link":"/clear-cookie", "cond":auth}
         navBar(links=links)
     return h
+
+async def CompHero(auth):
+    with Card().classes("w-full h-fit"):
+        with RawRow().classes("w-fit h-fit gap-1 items-center"):
+            Label(ICON).classes(" text-4xl lg:text-6xl ")
+            Label(NAME).classes(" text-4xl lg:text-6xl font-semibold")
 
 async def CompFooter(auth):
     with Footer() as f:
