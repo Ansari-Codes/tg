@@ -25,9 +25,11 @@ async def cb():
     await re()
 
 @ui.page("/project/{slug}")
-async def cp(slug: str): 
+async def cp(slug: str, request: Request): 
     INIT_THEME()
-    await rp(slug)
+    token = request.cookies.get("auth_token")
+    print("Auth token Project viewer:", token)
+    await rp(slug, token)
 
 @ui.page("/signup")
 async def css(redirectTo: str = '/dashboard', request: Request = None, res: Response = None): #type:ignore
@@ -53,7 +55,7 @@ async def csl(redirectTo: str = '/dashboard', request: Request = None, res: Resp
 
 @ui.page("/set-cookie/{id}")
 async def set_cookie(id: int, redirectTo: str = '/dashboard'):
-    res = RedirectResponse(redirectTo, status_code=200)
+    res = RedirectResponse(redirectTo)
     id = int(id)
     age = 15 * 60 * 60 * 24
     value = uuid4().__str__()
@@ -75,7 +77,7 @@ async def set_cookie(id: int, redirectTo: str = '/dashboard'):
 
 @ui.page("/clear-cookie")
 async def del_cookie(request:Request):
-    res = RedirectResponse('/', status_code=200)
+    res = RedirectResponse('/')
     value = request.cookies.get("auth_token")
     if value is None: return res
     c = showLoading("")

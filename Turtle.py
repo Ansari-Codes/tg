@@ -122,7 +122,7 @@ class T:
         if self._pen:
             self._js_actions.append(
                 f"if (!window.is_running) return;"
-                f"{'await delay({self._delay});'*self.isAnimated()} "
+                f"{f'await delay({self._delay});'*self.isAnimated()} "
                 f"{self._ctx}.beginPath(); "
                 f"{self._ctx}.moveTo(cx() + {self._x}, cy() + {self._y}); "
                 f"{self._ctx}.lineTo(cx() + {x}, cy() + {y}); "

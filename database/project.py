@@ -1,12 +1,11 @@
 from db import RUN_SQL, PROJECTS, USERS, LIKEDS, VIEWEDS
 from models import Response
 from .helpers import isUnique, escapeSQL, randomstr, rnd
-from storage import getUserStorage
 
 async def unique(item, col):
     return await isUnique(item, col, PROJECTS)
 
-async def createEmtpyProject():
+async def createEmtpyProject(id):
     res = Response()
     if not res.success:return res
     title = randomstr()
@@ -15,7 +14,7 @@ async def createEmtpyProject():
             title = randomstr(8)
     except Exception as e:
         res.errors['project'] = "Unable to create project!"
-    owner = getUserStorage().get("id", 0)
+    owner = id
     slug = randomstr()
     pycode = "print('Turtle graphics')"
     jscode = "console.log('Turtle graphics')"

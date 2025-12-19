@@ -2,7 +2,6 @@
 from UI import Card, Center, Input, Label, Row, Col, RawCol, RawRow, AddSpace, CheckBox, Notify, Button, navigate
 from models import Variable
 from database.auth import signup, login
-from storage import getUserStorage, updateUserStorage
 
 def validate(iv, ie, pv, pe):
     if not iv.value.strip().lower():
@@ -22,11 +21,9 @@ async def lgn(iv, pv, ie, pe, l):
         Notify(res.errors.get("acc", "Unknown error occured!"), type='negative')
         return
     res.data['auth'] = True
-    print(res.data)
-    updateUserStorage(res.data)
     print("LogIn:", res.data) 
-    Notify("Access granted!", type='positive')
-    navigate(l)
+    id = int(res.data.get("id",0))
+    navigate(f"/set-cookie/{id}?redirectTo={l}")
 
 async def render(l='/dashboard', response=None):
     iv = Variable("")   # display name

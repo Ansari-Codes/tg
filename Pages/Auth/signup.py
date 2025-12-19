@@ -91,7 +91,7 @@ async def sup(nv, mv, pv, cv, ne, me, pe, l, response):
     #     path="/",
     #     max_age=age
     # )
-    navigate(f"/set-cookie/{id}?redirectTo=/dashboard")
+    navigate(f"/set-cookie/{id}?redirectTo={l}")
     # Notify("Account created!", type='positive')
     # navigate(l)
 

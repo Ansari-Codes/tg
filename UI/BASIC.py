@@ -1,17 +1,17 @@
 from nicegui import Client
 from ENV import ui, THEME, app
 from typing import Callable, Literal
-from storage import getThemeStorage, updateThemeStorage
 
 def navigate(link:str,new_tab:bool=False):ui.navigate.to(link,new_tab)
 def INIT_THEME():
-    updateThemeStorage({},True)
-    if getThemeStorage():
-        ui.colors(**getThemeStorage())
-    else:
-        ui.colors(**THEME)
-        updateThemeStorage(THEME.copy())
-    return getThemeStorage()
+    # updateThemeStorage({},True)
+    # if getThemeStorage():
+    #     ui.colors(**getThemeStorage())
+    # else:
+    #     ui.colors(**THEME)
+    #     updateThemeStorage(THEME.copy())
+    # return getThemeStorage()
+    pass
 
 def Label(text="", model=None, model_configs=None):
     lbl = ui.label(text)

@@ -4,16 +4,17 @@ from models import Variable
 from database.project import createEmtpyProject, getAllProjects, deleteProject
 from loading import showLoading
 
-async def _ask_new_project():
+async def _ask_new_project(id):
     n = ui.notification("Creating project...", position='bottom-left', color='primary',
                     spinner=True, timeout=100, close_button=True)
     try:
-        p = await createEmtpyProject()
+        p = await createEmtpyProject(id)
         n.dismiss()
         if not p.success:
             raise Exception(p.errors.get("other", ""))
         slug = p.data.get("slug")
         navigate(f"/create/{slug}",True)
+        Notify("Project created!", type="positive")
     except Exception as e:
         n.dismiss()
         Notify(str(e), type="negative")
@@ -27,7 +28,7 @@ async def _del_prject(id, d, updater):
             n.dismiss()
             if not p.success:
                 raise Exception(p.errors.get("other", ""))
-            Notify("Project deleted!", type="success")
+            Notify("Project deleted!", type="info")
         except Exception as e:
             n.dismiss()
             Notify(str(e), type="negative")
@@ -81,7 +82,7 @@ async def projects(area,user):
     dialog = Dialog()
     async def ask():
         new.disable()
-        await _ask_new_project()
+        await _ask_new_project(userID())
         await updateProjects()
         new.enable()
     async def del_proj(id):
@@ -94,12 +95,17 @@ async def projects(area,user):
         for _ in __w: _.set_enabled(False)
         with c: showLoading('Projects', True).classes("w-full h-full max-h-[78vh]")
         pg = per_page.value
+        if not user or not user.get("id"):
+            c.clear()
+            with c: Label("Please log in to view projects").classes("text-red-500 text-lg")
+            return
         projects = await getAllProjects(
             userID(),
             **filters,
             per_page=pg, # type: ignore
             page=page.value, # type: ignore
         )
+        print(f"Projects API: success={projects.success}, count={len(projects.data) if projects.data else 0}")
         c.clear()
         with c:
             if projects.success:

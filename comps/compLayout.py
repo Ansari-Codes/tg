@@ -1,5 +1,4 @@
 from UI import Header, Label, Html, Button, AddSpace, Footer, Link, navigate, navBar
-from storage import isAuth
 from ENV import NAME, ICON
 
 async def CompHeader(auth):

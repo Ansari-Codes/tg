@@ -1,18 +1,21 @@
 from UI import Label, Button, RawCol, RawRow, ui, Html, Icon, AddSpace, Notify
-from storage import getUserStorage
 from database.project import loadProjectWithOwner, likeAProject, viewAProject, hasLiked
+from database.session import getCurrentUser
 from loading import showLoading
 from js import ZOOM_PAN
 import ENV
 
-async def render(slug):
+async def render(slug, token):
     c = showLoading(f"Project: {slug}")
     context = ui.context.client
     await context.connected()
 
     project = await loadProjectWithOwner(slug)
+    user = await getCurrentUser(token)
     data = project.data
     print(project)
+    def userID():
+        return user.data.get("id")
 
     async def run():
         ui.run_javascript(data.get("jscode", "").replace("{{thumbnail}}", "false", 1).replace("{{canvas}}", "t-canvas", 1))
@@ -22,12 +25,12 @@ async def render(slug):
 
     async def likeProject():
         if not like_button:return
-        if not getUserStorage().get("id"): 
+        if not userID(): 
             Notify("LogIn first to like!")
             return
         like_button.set_enabled(False)
         try:
-            likes = await likeAProject(data.get("id", None), getUserStorage().get("id", None))
+            likes = await likeAProject(data.get("id", None), userID())
             d = likes.data
             if likes.success:
                 like_label.set_text(d.get("likes", "N/A"))
@@ -38,13 +41,14 @@ async def render(slug):
                     like_button.props("color='red'")
                 else:
                     like_button.set_icon("thumb_up")
+                    like_button.props("color='primary'")
             else:
                 Notify("An Error occured while liking!", type="negative")
         finally:
             like_button.set_enabled(True)
 
     if project.success:
-        _ = await viewAProject(data.get("id", None), getUserStorage().get("id", None))
+        _ = await viewAProject(data.get("id", None), userID())
         print(_)
         if _.success and not (_.meta.get("view", "") == "already viewed"):
             data['views'] = _.data.get("views", 0)
@@ -52,7 +56,7 @@ async def render(slug):
             pass
         else:
             Notify(_.errors.get("view", "An error occured in viewing!"), type="negative")
-        hasliked = await hasLiked(data.get("id", None), getUserStorage().get("id", None))
+        hasliked = await hasLiked(data.get("id", None), userID())
         like_button = Button(
             on_click=likeProject, #type:ignore
             config=dict(icon="thumb_up", color="blue"),

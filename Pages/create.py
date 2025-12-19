@@ -84,7 +84,7 @@ async def publish(d,ss,b,saver):
     d.clear()
     w = []
     async def _publish():
-        value = desc.value.__str__().strip().lower()
+        value = desc.value.__str__().strip()
         for i in w: i.disable()
         await saver({"description": value, "status": 1})
         for i in w: i.enable()
@@ -211,7 +211,7 @@ async def render(slug,token):
         await updateProject(pjt)
         n.dismiss()
         Notify("Changes Saved!", color="success")
-    async def run():
+    async def run(_=None, thumbnail=False):
         if not code.value.strip(): return
         shared = []
         class Turtle(T):
@@ -233,7 +233,6 @@ async def render(slug,token):
         out, err, e = await execute(code.value, safe_globals)
         js = ''
         for l in shared:js += '\n' + l.strip()
-        await asyncio.sleep(0.1)
         js_ = """
         (async function() {
             const canvas = document.getElementById("{{canvas}}");
@@ -261,9 +260,10 @@ async def render(slug,token):
             let cx = () => cw() / 2;
             let cy = () => ch() / 2;
             {{js}}
+            console.log("Done");
         })();
         """
-        wrapped_js = js_.replace("{{canvas}}", "t-canvas", 1).replace("{{thumbnail}}", "false").replace("{{js}}", js, 1)
+        wrapped_js = js_.replace("{{canvas}}", "t-canvas", 1).replace("{{thumbnail}}", thumbnail.__str__().lower()).replace("{{js}}", js, 1)
         jscode.value = js_.replace("{{js}}", js, 1)
         ui.run_javascript("window.is_running = false;" + wrapped_js)
         def printer_print(val, c="", p="", s=""):
@@ -312,7 +312,6 @@ async def render(slug,token):
                     theme="githubLight",
                     on_change=lambda x:code.set(x.value.__str__().strip())
                 ).classes("w-full h-full")
-                    t.bind_value(code)
                     code.value = project.get('pycode') #type:ignore
                 with sp.after:
                     log = Html("<div class='bg-blue-100 dark:bg-primary w-full h-full' id='t-logger'></div>").classes("w-full h-full")
@@ -325,5 +324,5 @@ async def render(slug,token):
 </div>
             """).classes("w-full h-full overflow-hidden")
             ZOOM_PAN()
-    await run()
+    await run(thumbnail=True)
     c.delete()

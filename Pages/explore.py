@@ -2,7 +2,6 @@ from UI import Label, Input, Button, Icon, RawCol, RawRow, Card, Choice, AddSpac
 from ENV import NAME, ICON
 from models import Variable
 from database.brows import getPaginated
-from storage import getUserStorage, userID
 from loading import showLoading
 
 def proj(project: dict, js=None):
@@ -22,7 +21,7 @@ def proj(project: dict, js=None):
             Label(project.get("likes",0)).classes("text-md text-blue-500")
         with RawRow().classes("font-bold items-center"):
             Icon("person", "xs", "primary")
-            Label(project.get("owner_name", "Anonymous").title()).classes("text-primary text-md")
+            Label((project.get("owner_name") or "Anonymous").title()).classes("text-primary text-md")
 
 def sectionLabel(text):
     return Label(text).classes("w-full text-md font-semibold")
@@ -44,6 +43,7 @@ async def render():
             per_page=pg, # type: ignore
             page=page.value, # type: ignore
         )
+        print("Explore", len(projects.data))
         c.clear()
         js.clear()
         with c:

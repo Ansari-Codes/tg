@@ -2,7 +2,6 @@ from UI import Label, Input, Card, Col, Row, RawCol, RawRow, TextArea, Link, But
 from database.dashb import getUser, countProjects, getLatestProjects, getAllProjectsWithoutPaginationOrSearch
 from loading import showLoading
 from plotly.graph_objects import Figure, Scatter
-from database.session import getCurrentUser
 
 async def dashbd(area,user):
     area.clear()
