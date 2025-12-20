@@ -220,9 +220,9 @@ def navBar(links: dict | None = None, bkp="sm"):
                     Button(name, **{k: v for k, v in opts.items() if k != "cond"})
 
         # Mobile
-        with Button(config=dict(icon="menu")).classes(f"flex {bkp}:hidden") as mobile:
+        with Button(config=dict(icon="menu")).classes(f"flex {bkp}:hidden"):
             with ui.menu().props("auto-close"):
-                with RawCol().classes("w-fit gap-1 p-1 bg-secondary"):
+                with RawCol().classes("w-[150px] gap-1 p-2 bg-secondary") as mobile:
                     for name, opts in norm_links.items():
                         if opts.get("cond", True):  # again, just read
                             Button(name, **{k: v for k, v in opts.items() if k != "cond"}).classes("w-full")
