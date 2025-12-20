@@ -17,7 +17,6 @@ async def insert_user(name, mail, pswd, avatar):
     WHERE name = '{name}' AND email = '{mail}';
     """
     row = await RUN_SQL(fetch_query, True)
-    print("insert_user: ", row)
     return row[0] if row else {}
 
 async def signup(
@@ -38,21 +37,13 @@ async def signup(
     try:
         if not await unique(name, 'name'):
             res.errors['name'] = "Username already taken!"
-        else:
-            print("Username is valid")
         if not await unique(mail, 'email'):
             res.errors['mail'] = "Email already taken!"
-        else:
-            print("Mail is valid")
         if not res.success: return res
-        else:
-            print("Succeeded")
         res.data = await insert_user(name, mail, pswd, avatar)
     except Exception as e:
         res.errors['other'] = "Cannot create account!"
-        print(e)
         return res
-    print(res.data)
     return res
 
 async def login(iden:str, pswd:str)->Response:
@@ -67,9 +58,7 @@ async def login(iden:str, pswd:str)->Response:
         result = await RUN_SQL(query, True)
     except Exception as e:
         res.errors['acc'] = "Unable to login"
-        print(e)
         return res
-    print("Login:", result)
     if result and result[0]:
         data = result[0]
         if data.get("pswd") == pswd:

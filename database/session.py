@@ -8,7 +8,6 @@ async def getCurrentUser(token):
         return res
     try:
         session = await RUN_SQL(f"SELECT * FROM {SESSIONS} WHERE session_token='{token}';", to_fetch=True)
-        print("getCurrectUser: ", session)
         if session:
             id  = session[0].get("user")
             if not id:

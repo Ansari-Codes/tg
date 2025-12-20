@@ -29,7 +29,6 @@ async def createEmtpyProject(id):
         await RUN_SQL(query)
     except Exception as e:
         res.errors['other'] = "Unable to create project!"
-        print(e)
         return res
     fetch_query = f"""
     SELECT * FROM {PROJECTS} WHERE slug = '{escapeSQL(slug)}';
@@ -38,7 +37,6 @@ async def createEmtpyProject(id):
         row = await RUN_SQL(fetch_query, True)
     except Exception as e:
         res.errors['other'] = "Unable to create project!"
-        print(e)
         return res
     res.data = row[0] if row else {}
     return res
@@ -73,7 +71,6 @@ async def getAllProjects(
         projects = await RUN_SQL(query, to_fetch=True)
     except Exception as e:
         res.errors['project'] = "Cannot fetch projects!"
-        print(e)
         return res
     res.data = projects
     res.meta = {
@@ -98,7 +95,6 @@ async def getAllProjectsWithoutPaginationOrSearch(
         projects = await RUN_SQL(query, to_fetch=True)
     except Exception as e:
         res.errors['project'] = "Cannot fetch projects!"
-        print(e)
         return res
     res.data = projects
     return res
@@ -118,7 +114,6 @@ async def loadProject(item, by="slug"):
         project = await RUN_SQL(query, True)
     except Exception as e:
         res.errors['project'] = "Cannot load project!"
-        print(e)
         return res
     if project and project[0]:
         prjt = project[0]
@@ -152,7 +147,6 @@ async def loadProjectWithOwner(item, by="slug"):
         project = await RUN_SQL(query, True)
     except Exception as e:
         res.errors['project'] = "Cannot load project!"
-        print(e)
         return res
     if project and project[0]:
         res.data = project[0]
@@ -179,7 +173,6 @@ async def updateProject(data: dict):
         row = await RUN_SQL(query, True)
     except Exception as e:
         res.errors['project'] = "Cannot update project!"
-        print(e)
         return res
     res.data = row[0] if row else {}
     return res
@@ -240,7 +233,6 @@ async def likeAProject(project_id, liker_id):
             "action": action
         }
     except Exception as e:
-        print("Error toggling like:", e)
         res.errors["like"] = "Cannot like project"
     return res
 
@@ -304,7 +296,6 @@ async def viewAProject(project_id, viewer_id):
             "views": updated[0]["views"] if updated else 0,
         }
     except Exception as e:
-        print("Error viewing:", e)
         res.errors["view"] = "Cannot view project"
 
     return res

@@ -45,7 +45,6 @@ async def countProjects(item, by='owner'):
         return res
     if resp and len(resp) > 0:
         row = resp[0]
-        print(row)
         res.data = {
             "projs": row.get("total", 0),
             "draft": row.get("drafts", 0),
@@ -64,7 +63,6 @@ async def getLatestProjects(owner, count=5):
         projects = await RUN_SQL(query, to_fetch=True)
     except Exception as e:
         res.errors['project'] = "Cannot fetch projects!"
-        print(e)
         return res
     res.data = projects
     return res
@@ -84,7 +82,6 @@ async def getDataForGraph(limit: int = 50):
     try:
         data = await RUN_SQL(query, to_fetch=True)
     except Exception as e:
-        print("Graph query error:", e)
         res.errors["graph"] = "Cannot fetch graph data!"
         return res
     res.data = data #type:ignore

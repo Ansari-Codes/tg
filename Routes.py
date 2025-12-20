@@ -17,7 +17,6 @@ from database.dashb import getUserName
 async def cw(request: Request): 
     INIT_THEME()
     token = request.cookies.get("auth_token")
-    print("Auth token Dashboard:", token)
     await rw(token)
 
 @ui.page("/explore")
@@ -30,7 +29,6 @@ async def cp(slug: str, request: Request):
     INIT_THEME()
     token = request.cookies.get("auth_token")
     id = request.cookies.get("user_id")
-    print("Auth token Project viewer:", token)
     await rp(slug, token, id) #type:ignore
 
 @ui.page("/signup")
@@ -38,7 +36,6 @@ async def css(redirectTo: str = '/dashboard', request: Request = None, res: Resp
     INIT_THEME()
     if request:
         token = request.cookies.get("auth_token")
-        print("Auth token SignUp:", token)
     else:
         token = None
     if not token : await rs(redirectTo,response=res) #type:ignore
@@ -49,7 +46,6 @@ async def csl(redirectTo: str = '/dashboard', request: Request = None, res: Resp
     INIT_THEME()
     if request:
         token = request.cookies.get("auth_token")
-        print("Auth token LogIn:", token)
     else:
         token = None
     if not token : await rl(redirectTo,response=res) #type:ignore
@@ -107,7 +103,6 @@ async def cd(request: Request):
     token = request.cookies.get("auth_token")
     id = request.cookies.get("user_id")
     name = request.cookies.get("user_name")
-    print("Auth token Dashboard:", token)
     if token: await rd(token, id, name) #type:ignore
     else: navigate("/login?redirectTo=/dashboard")
 
@@ -115,7 +110,6 @@ async def cd(request: Request):
 async def cc(slug: str, request: Request):
     INIT_THEME()
     token = request.cookies.get("auth_token")
-    print("Auth token Editor:", token)
     if token: await rc(slug,token) #type:ignore
     else: navigate(f"/login?redirectTo=/create/{slug}")
 

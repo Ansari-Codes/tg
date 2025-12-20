@@ -53,7 +53,6 @@ async def render(slug, token, id):
 
     if project.success:
         _ = await viewAProject(data.get("id", None), userID())
-        print(_)
         if _.success and not (_.meta.get("view", "") == "already viewed"):
             data['views'] = _.data.get("views", 0)
         elif (_.meta.get("view", "") == "already viewed"):

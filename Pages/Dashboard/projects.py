@@ -107,7 +107,6 @@ async def projects(area,user):
             per_page=pg, # type: ignore
             page=page.value, # type: ignore
         )
-        print(f"Projects API: success={projects.success}, count={len(projects.data) if projects.data else 0}")
         c.clear()
         with c:
             if projects.success:

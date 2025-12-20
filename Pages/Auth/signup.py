@@ -73,7 +73,6 @@ async def sup(nv, mv, pv, cv, ne, me, pe, l, response):
 
     # success UI feedback (you can customize)
     res.data['auth'] = True
-    print("SignUp:", res.data)
     if res.data.get("id") is None:
         return Notify("Error in creating account!", type="negative")
     id = int(res.data.get("id",0))

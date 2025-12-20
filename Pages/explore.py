@@ -43,7 +43,6 @@ async def render():
             per_page=pg, # type: ignore
             page=page.value, # type: ignore
         )
-        print("Explore", len(projects.data))
         c.clear()
         js.clear()
         with c:

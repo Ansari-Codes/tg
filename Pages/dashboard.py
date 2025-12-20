@@ -17,7 +17,6 @@ async def changePage(area:ui.element, var:Variable, name:str, triggerer=None, us
             elif name == 'analytics': await analytics(area)
             elif name == 'settings': await settings(area)
         except Exception as e:
-            print(e)
             Notify(f"We cannot take you to {name}!", type="negative")
         finally:
             if triggerer:

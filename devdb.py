@@ -19,7 +19,6 @@ async def SQL(query, params=(), fetch=False):
                 await con.commit()
                 return True
     except Exception as e:
-        print("SQL Error:", e)
         return None
     finally:
         await con.close()

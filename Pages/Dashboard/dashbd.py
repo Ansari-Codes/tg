@@ -16,8 +16,6 @@ async def dashbd(area,user,user_name):
     await ui.context.client.connected()
     def userID():
         return user
-    print("dashb", user)
-    print(userID())
     pr = (await countProjects(userID()))
     p = pr.data
     projects = p.get("projs","N/A") or "0"
@@ -136,6 +134,5 @@ async def dashbd(area,user,user_name):
                     "w-full sm:w-[60%] h-96 bg-card-l dark:bg-card-d rounded-xl shadow-md p-4 mt-4 sm:ml-4"
                 )
     except Exception as e:
-        print(e)
         Label(f"Error Occured!").classes("text-2xl text-red p-2")
     loading.delete()

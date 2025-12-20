@@ -53,8 +53,6 @@ q = 0
 async def RUN_SQL(query: str, to_fetch: bool = False):
     global q
     q += 1
-    print(f"DB[{q}] → Running")
-
     payload = {
         "query": query,
         "to_fetch": to_fetch,
@@ -66,10 +64,7 @@ async def RUN_SQL(query: str, to_fetch: bool = False):
         res = await _post(payload)
         return res.get("data", [{}])
     except Exception as e:
-        print(f"DB[{q}] - Error!")
         print(e)
-    finally:
-        print(f"DB[{q}] → Done")
 
 
 async def rawRUN_SQL(query: str, to_fetch: bool = True):
