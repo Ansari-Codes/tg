@@ -1,5 +1,5 @@
 # ui file (snippet)
-from UI import Card, Center, Input, Label, Row, Col, RawCol, RawRow, AddSpace, CheckBox, Notify, Button, navigate
+from UI import Card, Center, Input, Label, Row, Col, RawCol, RawRow, AddSpace, CheckBox, Notify, Button, navigate, Password
 from models import Variable
 from database.auth import signup
 from app_endpoints import saveCookie
@@ -134,8 +134,8 @@ async def render(l='/dashboard', response=None):
                     AddSpace()
                     Label(model=pe, model_configs=dict(strict=False)).classes("w-fit")\
                         .bind_visibility_from(pe, "value")
-                widgets.append(Input(pv).classes("w-full"))
-                widgets.append(Input(cv).classes("w-full"))
+                widgets.append(Password(model=pv).classes("w-full"))
+                widgets.append(Password(model=cv).classes("w-full"))
 
                 checkbox = CheckBox("I accept agreements!").classes("w-full")
                 widgets.append(checkbox)

@@ -1,5 +1,5 @@
 # ui file (snippet)
-from UI import Card, Center, Input, Label, Row, Col, RawCol, RawRow, AddSpace, CheckBox, Notify, Button, navigate
+from UI import Card, Center, Input, Label, Row, Col, RawCol, RawRow, AddSpace, CheckBox, Notify, Button, navigate, Password
 from models import Variable
 from database.auth import signup, login
 
@@ -54,8 +54,8 @@ async def render(l='/dashboard', response=None):
                     AddSpace()
                     Label(model=pe, model_configs=dict(strict=False)).classes("w-fit")\
                         .bind_visibility_from(pe, "value")
-                widgets.append(Input(pv).classes("w-full"))
-
+                widgets.append(Password(model=pv).classes("w-full"))
+                
                 btn = Button("LogIn", on_click=sp)
                 btn2 = Button("SignUp", config=dict(color='secondary'), link=f"/signup?redirectTo={l}")
                 widgets.append(btn)

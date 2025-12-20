@@ -63,6 +63,9 @@ def Input(
         if model: inp.bind_value(model, 'value', **bindings)
     return inp
 
+def Password(password_toggle_button=True, **kwargs):
+    return Input(**kwargs, password=True, password_toggle_button=password_toggle_button)
+
 def Select(
         model = None,
         options: list|dict|None = None,

@@ -77,6 +77,7 @@ async def render(token, user_id, name):
     page_layout.props(remove='view', add='view="lHh lpR lFf"')
     try:
         tab = await ui.run_javascript("localStorage.getItem('tab')")
+        tab = tab if tab and tab.strip() else "dashboard"
     except Exception as e:
         tab = 'dashboard'
     loading.delete()
