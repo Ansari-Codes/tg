@@ -14,6 +14,17 @@ async def getUser(item, by='id'):
     res.data = resp[0] if resp else {}
     return res
 
+async def getUserName(item, by='id'):
+    res = Response()
+    try:
+        itm = escapeSQL(f"{item}") if isinstance(item, str) else item
+        resp = await RUN_SQL(f"SELECT name FROM {USERS} WHERE {by} = {itm}", True)
+    except Exception as e:
+        res.errors['user'] = e
+        return res
+    res.data = resp[0] if resp else {}
+    return res
+
 async def countProjects(item, by='owner'):
     res = Response()
     try:
@@ -56,4 +67,25 @@ async def getLatestProjects(owner, count=5):
         print(e)
         return res
     res.data = projects
+    return res
+
+async def getDataForGraph(limit: int = 50):
+    res = Response()
+    query = f"""
+        SELECT 
+            title,
+            likes,
+            slug
+        FROM {PROJECTS}
+        WHERE status = 1
+        ORDER BY updated_at DESC
+        LIMIT {int(limit)};
+    """
+    try:
+        data = await RUN_SQL(query, to_fetch=True)
+    except Exception as e:
+        print("Graph query error:", e)
+        res.errors["graph"] = "Cannot fetch graph data!"
+        return res
+    res.data = data #type:ignore
     return res

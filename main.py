@@ -1,6 +1,5 @@
 from Routes import *
 import ENV
-import app_endpoints
 
 ENV.ui.run(
     host=ENV.HOST, 

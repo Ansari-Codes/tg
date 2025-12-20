@@ -1,14 +1,21 @@
 from UI import Label, Input, Card, Col, Row, RawCol, RawRow, TextArea, Link, Button, Html, Icon, Notify, ui, AddSpace, navigate
-from database.dashb import getUser, countProjects, getLatestProjects, getAllProjectsWithoutPaginationOrSearch
+from database.dashb import getUser, countProjects, getLatestProjects, getDataForGraph
 from loading import showLoading
 from plotly.graph_objects import Figure, Scatter
+from datetime import datetime
 
-async def dashbd(area,user):
+def parse_dt(p):
+    ts = p.get("updated_at")
+    if not ts:
+        return datetime.min
+    return datetime.strptime(ts, "%Y-%m-%d %H:%M:%S")
+
+async def dashbd(area,user,user_name):
     area.clear()
     loading = showLoading("Dashboard", True).classes("w-full h-full")
     await ui.context.client.connected()
     def userID():
-        return user.get("id")
+        return user
     print("dashb", user)
     print(userID())
     pr = (await countProjects(userID()))
@@ -18,14 +25,17 @@ async def dashbd(area,user):
     pubs = p.get("pubs", "N/A") or "0"
     likes = p.get("likes", "N/A") or "0"
     views = p.get("views", "N/A") or "0"
-    latest = await getLatestProjects(userID())
-    errors = {**pr.errors, **latest.errors}
-    projectss = await getAllProjectsWithoutPaginationOrSearch(userID())
+    projectss = await getDataForGraph()
+    latest = projectss.data[0:]
+    latest.sort(key=parse_dt, reverse=True)
+    if len(latest)>5:
+        latest=latest[0:6]
+    errors = {**pr.errors, **projectss.errors}
     if errors:
         for name, e in errors.items():
             Notify(e, type='negative')
     try:
-        Html(f"Hi, <span class='text-primary'>{user.get('name', '').title()}!</span>").classes("w-full text-5xl font-bold mb-2")
+        Html(f"Hi, <span class='text-primary'>{user_name.title()}!</span>").classes("w-full text-5xl font-bold mb-2")
         with RawRow().classes("w-full p-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-5 gap-2", remove='flex flex-row'):
             with Card().classes("h-fit"):
                 with RawCol().classes("w-full gap-1"):
@@ -57,20 +67,16 @@ async def dashbd(area,user):
                     with RawRow().classes("w-full gap-1 text-green-500 items-center"):
                         Icon("public", "lg");AddSpace()
                         Label(pubs).classes("text-4xl font-extrabold")
-        if latest.data:
+        if latest:
             with RawRow().classes("w-full h-full"):
                 with RawCol().classes("w-full sm:w-full md:w-[30%] gap-2 p-1"):
                     Label("Some latest projects...").classes("text-lg font-semibold italic")
-                    for project in latest.data:
+                    for project in latest:
                         with Card():
                             with RawRow().classes("w-full gap-1"):
                                 Label(project.get("title","").title()).classes("text-lg font-semibold max-w-[50%] truncate")
                                 AddSpace()
-                                Icon("drafts" if not project.get("status") else "public", 'sm'
-                                    ).classes("p-1").classes(
-                                        "text-yellow-700 dark:text-yellow-500" if not project.get("status") else "text-green-500"
-                                    )
-                                Icon("edit", 'sm'
+                                Icon("edit", 'sm', "secondary"
                                     ).classes("p-1 bg-primary rounded-sm cursor-pointer text-sm"
                                     ).on('click', lambda _,s=project.get("slug"):(navigate(f"/create/{s}",True) if s else None))
                                 Icon("open_in_new", 'sm'

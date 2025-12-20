@@ -88,14 +88,14 @@ async def projects(area,user):
     async def del_proj(id):
         await _del_prject(id,dialog, updateProjects)
     def userID():
-        return user.get("id")
+        return user
     async def updateProjects(filters: dict | None = None):
         c.clear()
         filters = filters or {}
         for _ in __w: _.set_enabled(False)
         with c: showLoading('Projects', True).classes("w-full h-full max-h-[78vh]")
         pg = per_page.value
-        if not user or not user.get("id"):
+        if not userID():
             c.clear()
             with c: Label("Please log in to view projects").classes("text-red-500 text-lg")
             return

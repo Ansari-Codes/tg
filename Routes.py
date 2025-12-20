@@ -11,6 +11,7 @@ from fastapi import Request, Response
 from fastapi.responses import RedirectResponse, HTMLResponse
 from app_endpoints import RUN_SQL, saveCookie, uuid4, deleteCookie
 from loading import showLoading
+from database.dashb import getUserName
 
 @ui.page("/")
 async def cw(request: Request): 
@@ -28,8 +29,9 @@ async def cb():
 async def cp(slug: str, request: Request): 
     INIT_THEME()
     token = request.cookies.get("auth_token")
+    id = request.cookies.get("user_id")
     print("Auth token Project viewer:", token)
-    await rp(slug, token)
+    await rp(slug, token, id) #type:ignore
 
 @ui.page("/signup")
 async def css(redirectTo: str = '/dashboard', request: Request = None, res: Response = None): #type:ignore
@@ -50,29 +52,38 @@ async def csl(redirectTo: str = '/dashboard', request: Request = None, res: Resp
         print("Auth token LogIn:", token)
     else:
         token = None
-    if not token : await rl(redirectTo,response=res)
+    if not token : await rl(redirectTo,response=res) #type:ignore
     else: navigate(redirectTo)
-
-@ui.page("/set-cookie/{id}")
-async def set_cookie(id: int, redirectTo: str = '/dashboard'):
-    res = RedirectResponse(redirectTo)
-    id = int(id)
-    age = 15 * 60 * 60 * 24
-    value = uuid4().__str__()
-    c = showLoading("")
-    try:
-        await saveCookie(value, id, age)
-    except Exception as e:
-        return HTMLResponse(f"<span style='color: red;font-size:100px;'>An error occured!</span><br><span style='color: gray;font-size:15px;'>{e}</span>")
+AGE = 15 * 60 * 60 * 24
+def addCookie(res, key, value):
     res.set_cookie(
-        key="auth_token",
+        key=key,
         value=value,
         httponly=True,
         secure=True,
         samesite="lax",
         path="/",
-        max_age=age
+        max_age=AGE
     )
+
+@ui.page("/set-cookie/{id}")
+async def set_cookie(id: int, redirectTo: str = '/dashboard'):
+    res = RedirectResponse(redirectTo)
+    id = int(id)
+    value = uuid4().__str__()
+    c = showLoading("")
+    try:
+        await saveCookie(value, id, AGE)
+        uesrname = await getUserName(id)
+        if uesrname.success:
+            name = uesrname.data.get("name")
+        else:
+            raise Exception("Cannot fetch username...")
+    except Exception as e:
+        return HTMLResponse(f"<span style='color: red;font-size:100px;'>An error occured!</span><br><span style='color: gray;font-size:15px;'>{e}</span>")
+    addCookie(res, "auth_token", value)
+    addCookie(res, "user_id", str(id))
+    addCookie(res, "user_name", str(name))
     return res
 
 @ui.page("/clear-cookie")
@@ -86,14 +97,18 @@ async def del_cookie(request:Request):
     except Exception as e:
         return HTMLResponse(f"<span style='color: red;font-size:100px;'>An error occured!</span><br><span style='color: gray;font-size:15px;'>{e}</span>")
     res.delete_cookie("auth_token")
+    res.delete_cookie("user_id")
+    res.delete_cookie("user_name")
     return res
 
 @ui.page("/dashboard")
 async def cd(request: Request):
     INIT_THEME()
     token = request.cookies.get("auth_token")
+    id = request.cookies.get("user_id")
+    name = request.cookies.get("user_name")
     print("Auth token Dashboard:", token)
-    if token: await rd(token) #type:ignore
+    if token: await rd(token, id, name) #type:ignore
     else: navigate("/login?redirectTo=/dashboard")
 
 @ui.page("/create/{slug}")

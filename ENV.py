@@ -1,7 +1,7 @@
 from os import path, environ
 from nicegui import ui, app
 
-PROD = True
+PROD = False
 
 HOST = '0.0.0.0'
 PORT = int(environ.get("PORT", 8000))

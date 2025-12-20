@@ -1,11 +1,10 @@
 from UI import Label, Input, Button, Icon, RawCol, RawRow, Card, AddSpace, Header, Dialog, navigate, Notify, ui
 from ENV import NAME, ICON
-from database.session import getCurrentUser
 from models import Variable
 from .Dashboard import *
 from loading import showLoading
 
-async def changePage(area:ui.element, var:Variable, name:str, triggerer=None, user=None):
+async def changePage(area:ui.element, var:Variable, name:str, triggerer=None, user_id=None,name_=None):
     area.clear()
     name = name.lower()
     with area:
@@ -13,17 +12,19 @@ async def changePage(area:ui.element, var:Variable, name:str, triggerer=None, us
         if triggerer:
             for t in triggerer:t.set_enabled(False)
         try:
-            if name == 'dashboard': await dashbd(area,user) #type:ignore
-            elif name == 'projects': await projects(area,user)
+            if name == 'dashboard': await dashbd(area,user_id,name_) #type:ignore
+            elif name == 'projects': await projects(area,user_id) #type:ignore
             elif name == 'analytics': await analytics(area)
             elif name == 'settings': await settings(area)
         except Exception as e:
+            print(e)
             Notify(f"We cannot take you to {name}!", type="negative")
         finally:
             if triggerer:
                 for t in triggerer:t.set_enabled(True)
+    ui.run_javascript(f"localStorage.setItem('tab', '{name}')")
 
-def createDrawer(area,var,user):
+def createDrawer(area,var,user_id,name):
     with ui.drawer('left').classes("bg-primary") as drawer:
         Label(ICON + NAME).classes("text-2xl w-full text-center font-bold border-b-[1px]")
         btns = {
@@ -39,15 +40,15 @@ def createDrawer(area,var,user):
             for name, kw in btns.items():
                 b = Button(name, config=kw).classes("w-full bg-secondary").props('align="left"')
                 bs.append((lambda b=b: b)())
-                b.on_click(lambda _,name=name,b=bs: changePage(area, var, name, b,user))
+                b.on_click(lambda _,name=name,b=bs: changePage(area, var, name, b,user_id,name))
             sb = Button("Settings", config=dict(icon="settings")).classes("w-full bg-secondary").props('align="left"')
             bs.append(sb)
-            sb.on_click(lambda bs=bs:changePage(area, var, "settings",bs,user))
+            sb.on_click(lambda bs=bs:changePage(area, var, "settings",bs,user_id,name))
         return drawer, bs
 
 import asyncio
 
-async def render(token):
+async def render(token, user_id, name):
     loading = showLoading("Dashboard").classes("w-full h-[73vh]")
     var = Variable()
     d = []
@@ -55,11 +56,7 @@ async def render(token):
         if d:d[0].toggle()
     context = ui.context
     await context.client.connected()
-    res = await getCurrentUser(token)
-    if not res.success:
-        navigate("/login?redirectTo=/dashboard")
-    user = res.data
-    await asyncio.sleep(2)
+    await asyncio.sleep(1)
     with Header() as header:
         Icon('menu','md').on('click', toggle).classes(
                 "rounded transition-all duration-200 "
@@ -72,11 +69,15 @@ async def render(token):
         Label("")
     header.classes("p-2 m-0")
     area = ui.element().classes("w-full")
-    dbs = createDrawer(area, var,user)
+    dbs = createDrawer(area, var,user_id,name)
     drawer = dbs[0]
     bs = dbs[-1]
     d.append(drawer)
     page_layout = context.client.layout
     page_layout.props(remove='view', add='view="lHh lpR lFf"')
+    try:
+        tab = await ui.run_javascript("localStorage.getItem('tab')")
+    except Exception as e:
+        tab = 'dashboard'
     loading.delete()
-    await changePage(area, var, "dashboard",bs,user)
+    await changePage(area, var, tab,bs,user_id,name)

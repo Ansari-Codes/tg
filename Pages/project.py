@@ -5,7 +5,7 @@ from loading import showLoading
 from js import ZOOM_PAN
 import ENV
 
-async def render(slug, token):
+async def render(slug, token, id):
     c = showLoading(f"Project: {slug}")
     context = ui.context.client
     await context.connected()
@@ -18,10 +18,8 @@ async def render(slug, token):
         d.open()
         return
     project = await loadProjectWithOwner(slug)
-    user = await getCurrentUser(token)
     data = project.data
-    def userID():
-        return user.data.get("id")
+    def userID():return id
 
     async def run():
         ui.run_javascript(data.get("jscode", "").replace("{{thumbnail}}", "false", 1).replace("{{canvas}}", "t-canvas", 1))
