@@ -8,7 +8,7 @@ async def _ask_new_project(id):
     n = ui.notification("Creating project...", position='bottom-left', color='primary',
                     spinner=True, timeout=100, close_button=True)
     try:
-        p = await createEmtpyProject(id)
+        p = await createEmtpyProject(id) # type:ignore
         n.dismiss()
         if not p.success:
             raise Exception(p.errors.get("other", ""))
@@ -47,16 +47,18 @@ async def _del_prject(id, d, updater):
 def proj(project: dict, del_proj=lambda i:()):
     slug = project.get('slug')
     def context_menu():
-        with ui.context_menu():
+        with ui.menu() as c:
             ui.menu_item("Edit", lambda:(navigate(f"/create/{slug}",True) if slug else None)).classes("bg-primary font-bold text-md")
             ui.menu_item("View", lambda:(navigate(f"/project/{slug}",True) if slug else None)).classes("bg-primary font-bold text-md")
             ui.menu_item("Delete", lambda:del_proj(project.get('id'))).classes("bg-red-500 font-bold text-md")
-    with Label(project.get("title", "Untitled").title()).classes("text-xl font-bold break-words break-all overflow-hidden"):
-        context_menu()
-    with RawRow().classes("w-full aspect-square border-[1px] border-[var(--q-secondary)] rounded-sm"):
+        c.props('anchor="bottom left" self="top right"')
+        return c
+    with RawRow().classes("w-full h-fit justify-between"):
+        Label(project.get("title", "Untitled").title()).classes("text-xl font-bold break-words break-all overflow-hidden")
+        with Icon("more_horiz", "sm", "white").classes("w-fit h-fit rounded-md bg-primary hover:bg-[var(--q-secondary)] cursor-pointer "):context_menu()
+    with RawRow().classes("w-full aspect-square border-[1px] border-[var(--q-secondary)] rounded-sm") as _c:
         Html(f'<canvas id="t-{slug}-canvas" class="w-full h-full"></canvas>')
         ui.run_javascript(project.get("jscode","").replace("{{thumbnail}}", "true").replace("{{canvas}}", f"t-{slug}-canvas", 1))
-        context_menu()
     with RawRow().classes("w-full px-2 gap-1 items-end"):
         with RawRow().classes("w-fit font-bold items-end"):
             if project.get("status"):
@@ -136,7 +138,7 @@ async def projects(area,user):
                 Label("Unable to fetch projects!").classes("text-xl font-bold text-red-500")
         for _ in __w: _.set_enabled(True)
     d = Dialog()
-    with RawRow().classes("w-full gap-2"):
+    with RawRow().classes("w-full gap-1 sm:gap-2"):
         with RawRow().classes("w-full sm:w-fit"):
             async def search(s):
                 page.set(1)
