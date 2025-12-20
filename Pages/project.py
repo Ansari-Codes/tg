@@ -114,8 +114,8 @@ async def render(slug, token, id):
                 ) as lll:
                     with ui.element().classes("h-full flex flex-grow border-r-2 border-[var(--q-primary)]"):
                         with RawCol():
-                            Label(data.get('owner_name', 'Unknown').title()).classes("text-xl font-semibold")
-                            Label(data.get('owner_email', 'N/A')).classes("text-sm")
+                            Label((data.get('owner_name') or 'UnKnown').title()).classes("text-xl font-semibold")
+                            Label((data.get('owner_email') or 'N/A').lower()).classes("text-sm")
                         with RawRow().classes("gap-4 text-sm"):
                             with RawRow().classes("text-blue-500 dark:text-blue-400"):
                                 Icon("thumb_up")

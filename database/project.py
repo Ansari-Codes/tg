@@ -10,7 +10,7 @@ async def createEmtpyProject(id):
     if not res.success:return res
     title = randomstr()
     try:
-        if not unique(title, 'title'):
+        if not (await unique(title, 'title')):
             title = randomstr(8)
     except Exception as e:
         res.errors['project'] = "Unable to create project!"
