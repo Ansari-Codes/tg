@@ -164,12 +164,6 @@ async def createFileMenu(d,tm,ss,saver,project):
                 b.set_text("Publish")
                 b.on_click(x)
     return bbbb
-async def createEditMenu():
-    with Button("Edit") as b:
-        with ui.menu().classes("flex flex-col gap-1 p-2").props("auto-close"):
-            Button("Copy Canvas", copyCanvas).classes("w-full")
-            Button("Clear Canvas", clearCanvas).classes("w-full")
-    return b
 
 async def render(slug,token):
     c = showLoading("Editor")
@@ -287,14 +281,14 @@ async def render(slug,token):
     with Header().classes("flex flex-row items-center") as header:
         if not isSmallScreen:
             await createFileMenu(dialog, tm, ss,save,project)
-            await createEditMenu()
+            Button("Clear Canvas", clearCanvas)
             Button("Run", run)
             Button("Stop", lambda: ui.run_javascript("window.is_running = false;"))
         else:
             with Button(config=dict(icon="menu")):
                 with ui.menu():
                     (await createFileMenu(dialog, tm, ss,save,project)).classes("w-full")
-                    (await createEditMenu()).classes("w-full")
+                    Button("Clear Canvas", clearCanvas).classes("w-full")
                     Button("Run", run).classes("w-full")
                     Button("Stop", lambda: ui.run_javascript("window.is_running = false;")).classes("w-full")
         Label("", tm,
