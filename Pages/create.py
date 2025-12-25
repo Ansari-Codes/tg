@@ -180,7 +180,7 @@ async def render(slug,token):
     if not res.success:
         navigate("/login?redirectTo=/dashboard")
     if slug:
-        projec = await loadProject(slug)
+        projec = await loadProject(slug, withowner=True, owner=res.data.get("id"))
         project:dict = projec.data
         if not projec.success:
             c.delete()

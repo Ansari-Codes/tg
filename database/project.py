@@ -99,14 +99,16 @@ async def getAllProjectsWithoutPaginationOrSearch(
     res.data = projects
     return res
 
-async def loadProject(item, by="slug"):
+async def loadProject(item, by="slug", owner=None, withowner=True):
     res = Response()
     value = escapeSQL(str(item))
     value = f"'{value}'"
+    if withowner: oo = "AND owner = " + str(owner)
+    else: oo=""
     query = f"""
     SELECT *
     FROM {PROJECTS}
-    WHERE {by} = {value}
+    WHERE {by} = {value} {oo}
     ORDER BY id DESC
     LIMIT 1;
     """

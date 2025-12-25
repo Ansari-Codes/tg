@@ -23,11 +23,15 @@ async def dashbd(area,user,user_name):
     pubs = p.get("pubs", "N/A") or "0"
     likes = p.get("likes", "N/A") or "0"
     views = p.get("views", "N/A") or "0"
-    projectss = await getDataForGraph()
-    latest = projectss.data[0:]
-    latest.sort(key=parse_dt, reverse=True)
-    if len(latest)>5:
-        latest=latest[0:6]
+    projectss = await getDataForGraph(user=userID())
+    if not projectss.success:
+        Notify("Cannot fetch project data!", type='error')
+    latest_ = projectss.data[0:]
+    latest_.sort(key=parse_dt, reverse=True)
+    if len(latest_)>5:
+        latest=latest_[0:5]
+    else:
+        latest = latest_[0:]
     errors = {**pr.errors, **projectss.errors}
     if errors:
         for name, e in errors.items():

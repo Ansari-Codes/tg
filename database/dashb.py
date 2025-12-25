@@ -67,7 +67,7 @@ async def getLatestProjects(owner, count=5):
     res.data = projects
     return res
 
-async def getDataForGraph(limit: int = 50):
+async def getDataForGraph(limit: int = 50, user=None):
     res = Response()
     query = f"""
         SELECT 
@@ -75,7 +75,7 @@ async def getDataForGraph(limit: int = 50):
             likes,
             slug
         FROM {PROJECTS}
-        WHERE status = 1
+        WHERE owner = {user}
         ORDER BY updated_at DESC
         LIMIT {int(limit)};
     """
