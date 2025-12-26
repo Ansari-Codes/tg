@@ -8,6 +8,7 @@ async def CompHeader():
         AddSpace()
         links = {}
         links['Explore'] = "/explore"
+        links['Docs'] = "/docs"
         n,d,m = navBar(links=links)
     return h,n,d,m
 

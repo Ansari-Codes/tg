@@ -34,15 +34,21 @@ def createDrawer(area,var,user_id,uname):
                 "icon": "code"
             },
         }
-        with RawCol().classes("w-full h-fit gap-1"):
+        with RawCol().classes("w-full h-full gap-1"):
             bs = []
             for name, kw in btns.items():
                 b = Button(name, config=kw).classes("w-full bg-secondary").props('align="left"')
                 bs.append((lambda b=b: b)())
                 b.on_click(lambda _,name=name,b=bs: changePage(area, var, name, b,user_id,uname))
+            ab = Button("Analytics", config=dict(icon="auto_graph")).classes("w-full bg-secondary").props('align="left"')
+            bs.append(ab)
+            ab.on_click(lambda bs=bs:changePage(area, var, "analytics",bs,user_id,uname))
             sb = Button("Settings", config=dict(icon="settings")).classes("w-full bg-secondary").props('align="left"')
             bs.append(sb)
             sb.on_click(lambda bs=bs:changePage(area, var, "settings",bs,user_id,uname))
+            db = Button("Docs", config=dict(icon="book")).classes("w-full bg-secondary").props('align="left"')
+            bs.append(db)
+            db.props("href='/docs' target='_blank'")
         return drawer, bs
 
 import asyncio
