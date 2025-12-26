@@ -1,4 +1,4 @@
-from UI import Button, Label, Html, Link, Header, ui, AddSpace
+from UI import Button, Label, Html, Link, Header, ui, AddSpace, navBar
 
 # --------------------------------------------------
 # Docs registry
@@ -37,9 +37,7 @@ async def create_header(drawer):
     with ui.header().classes("items-center justify-between") as h:
         Label("🐢 TurtleGraphics / Docs").classes("text-lg font-bold")
         AddSpace()
-        Button("Home", link="/")
-        Button("Explore", link="/explore")
-        Button("Docs").on_click(drawer.toggle)
+        nvb = navBar({"Home": {"link":"/"}, "Explore": {"link": "/explore"}, "Docs": {"on_click": drawer.toggle}})
     return h
 
 # --------------------------------------------------
