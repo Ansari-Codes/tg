@@ -3,10 +3,10 @@ import ENV
 
 ENV.ui.run(
     host=ENV.HOST, 
-    port=8080, 
+    port=ENV.PORT, 
     title=ENV.NAME, 
     favicon=ENV.ICON, 
     storage_secret=ENV.SECRET,
-    reload=True,
+    reload=False,
     on_air=True
 )
