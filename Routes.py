@@ -12,6 +12,7 @@ from fastapi.responses import RedirectResponse, HTMLResponse
 from app_endpoints import RUN_SQL, saveCookie, uuid4, deleteCookie
 from loading import showLoading
 from database.dashb import getUserName
+from Documentation.docs import create_docs
 
 @ui.page("/")
 async def cw(request: Request): 
@@ -112,6 +113,11 @@ async def cc(slug: str, request: Request):
     token = request.cookies.get("auth_token")
     if token: await rc(slug,token) #type:ignore
     else: navigate(f"/login?redirectTo=/create/{slug}")
+
+@ui.page("/docs")
+async def cdc():
+    INIT_THEME()
+    await create_docs()
 
 # @ui.page("/create")
 # async def ccc():
