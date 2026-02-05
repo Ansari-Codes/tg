@@ -3,9 +3,6 @@ import os
 from dotenv import load_dotenv
 from ENV import app
 
-# Load .env variables
-load_dotenv()
-
 API_URL = os.getenv("API_URL", "")
 PASSWORD = os.getenv("PASSWORD", "")
 if not (API_URL and PASSWORD):
