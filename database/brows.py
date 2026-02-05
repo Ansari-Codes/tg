@@ -67,7 +67,10 @@ async def getPaginated(
         print("Pagination error:", e)
         res.errors['project'] = "Cannot fetch projects!"
         return res
-
+    if projects is None:
+        res.errors['project'] = "Cannot fetch projects!"
+        res.data = []
+        return res
     # -------------------------------
     # Response structure
     # -------------------------------
