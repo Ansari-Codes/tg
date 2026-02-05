@@ -64,12 +64,16 @@ async def getPaginated(
     try:
         projects = await RUN_SQL(query, to_fetch=True)
     except Exception as e:
+        print("Pagination error:", e)
         res.errors['project'] = "Cannot fetch projects!"
         return res
 
-    # -------------------------------
-    # Response structure
-    # -------------------------------
+    # defensive: RUN_SQL might return None
+    if projects is None:
+        res.errors['project'] = "Cannot fetch projects!"
+        res.data = []
+        return res
+
     res.data = projects
     res.meta = {
         "per_page": per_page,
