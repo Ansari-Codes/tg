@@ -48,6 +48,7 @@ async def render():
         with c:
             if not projects.success:
                 Label("Unable to fetch projects!").classes("text-xl font-bold text-red-500")
+                print("Error Fetching projects: explorer.py: ", projects.errors)
             else:
                 projects_list = projects.data or []
                 if not isinstance(projects_list, (list, tuple)):
