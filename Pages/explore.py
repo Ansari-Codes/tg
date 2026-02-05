@@ -47,11 +47,23 @@ async def render():
         c.clear()
         js.clear()
         with c:
-            if projects.success:
-                with RawCol().classes("w-full p-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2"):
-                    for project in projects.data:
-                        with Card().classes("w-full p-4 gap-2 max-w-full break-words break-all overflow-hidden"):
-                            proj(project, js)
+            if not projects.success:
+                Label("Unable to fetch projects!").classes("text-xl font-bold text-red-500")
+            else:
+                projects_list = projects.data or []
+                if not isinstance(projects_list, (list, tuple)):
+                    # defensive fallback
+                    Label("Unable to fetch projects!").classes("text-xl font-bold text-red-500")
+                elif len(projects_list) == 0:
+                    Label("No projects found.").classes("text-xl font-semibold")
+                else:
+                    with RawCol().classes("w-full p-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2"):
+                        for project in projects_list:
+                            with Card().classes("w-full p-4 gap-2 max-w-full break-words break-all overflow-hidden"):
+                                proj(project, js)
+
+                # pagination controls (always rendered regardless of whether we had items,
+                # but disabled appropriately)
                 with RawRow().classes(
                     "fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-primary gap-3 p-2 rounded-full shadow-xl items-center justify-center"
                 ):
@@ -66,10 +78,12 @@ async def render():
                         page.set(page.value + 1)  # type: ignore
                         await updateProjects(filters)
                     next_btn = Button("▶", on_click=nex).props("rounded")
-                    if len(projects.data) < pg:  # type: ignore
+                    # use projects_list here (defensive)
+                    try:
+                        if isinstance(projects_list, (list, tuple)) and len(projects_list) < pg:  # type: ignore
+                            next_btn.disable()
+                    except Exception:
                         next_btn.disable()
-            else:
-                Label("Unable to fetch projects!").classes("text-xl font-bold text-red-500")
         for _ in __w: _.set_enabled(True)
         for i in js:ui.run_javascript(i)
     d = Dialog()
