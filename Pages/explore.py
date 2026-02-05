@@ -2,7 +2,6 @@ from UI import Label, Input, Button, Icon, RawCol, RawRow, Card, Choice, AddSpac
 from ENV import NAME, ICON
 from models import Variable
 from database.brows import getPaginated
-from storage import getUserStorage, userID
 from loading import showLoading
 
 def proj(project: dict, js=None):
