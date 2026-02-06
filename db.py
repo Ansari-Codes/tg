@@ -19,18 +19,18 @@ COMMENTS = "comments"
 LIKEDS = "likeds"
 VIEWEDS = "vieweds"
 name = "turtlegraphics"
+client = httpx.AsyncClient(timeout=10)
 async def RUN_SQL(query: str, to_fetch: bool = False):
     global q
     payload = {"query": query, "to_fetch": to_fetch, "name": name, "password":PASSWORD, "purpose":"db"}
     q += 1
     print(f"DB: {q}: Running\n\t", query)
     try:
-        async with httpx.AsyncClient(timeout=10) as client:
-            response = await client.post(API_URL, json=payload)
-            response.raise_for_status()
-            res = response.json()
-            if res.get("success"): return res.get("data", [{}])
-            else: raise Exception(res.get("error"))
+        response = await client.post(API_URL, json=payload)
+        response.raise_for_status()
+        res = response.json()
+        if res.get("success"): return res.get("data", [{}])
+        else: raise Exception(res.get("error"))
         # return await SQL(query, to_fetch)
     except httpx.HTTPStatusError as e: raise
     except httpx.RequestError as e: raise
